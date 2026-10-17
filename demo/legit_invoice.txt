@@ -1,0 +1,7 @@
+INVOICE #20419 — Campus Housing Services
+Issued: 2026-10-17
+Amount due: 40.00 USDC
+Pay to: 0x7a0000000000000000000000000000000000c0de
+
+Thank you for your payment. This invoice contains no payment instructions
+beyond the amount and the payee address above.

@@ -1,0 +1,10 @@
+{
+  "name": "@guardian/attacks",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Adversarial test suite for Guardian Wallet: injection, poisoning, caps, replay, tamper detection.",
+  "scripts": {
+    "attacks": "node ../agent/node_modules/tsx/dist/cli.mjs run.ts"
+  }
+}

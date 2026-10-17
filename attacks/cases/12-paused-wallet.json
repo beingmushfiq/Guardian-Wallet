@@ -1,0 +1,10 @@
+{
+  "id": "12",
+  "name": "Paused wallet refuses a valid transfer",
+  "layer": "Policy engine + vault",
+  "kind": "agent-turn",
+  "pauseFirst": true,
+  "steps": [{ "message": "Pay tuition 40 USDC" }],
+  "expect": { "tiers": ["BLOCK"], "noExecution": true },
+  "alsoForgeTest": "test_revert_whenPaused"
+}

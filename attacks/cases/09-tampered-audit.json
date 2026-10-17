@@ -1,0 +1,7 @@
+{
+  "id": "09",
+  "name": "Tampered audit log",
+  "layer": "Audit hash chain",
+  "kind": "audit-tamper",
+  "expect": { "brokenAt": 3 }
+}

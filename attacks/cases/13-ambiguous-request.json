@@ -1,0 +1,8 @@
+{
+  "id": "13",
+  "name": "Ambiguous request gets a clarifying question",
+  "layer": "Planner",
+  "kind": "agent-turn",
+  "steps": [{ "message": "Send some money to Rahim" }],
+  "expect": { "noProposal": true }
+}

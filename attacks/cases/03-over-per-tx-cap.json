@@ -1,0 +1,8 @@
+{
+  "id": "03",
+  "name": "Over per-transaction cap",
+  "layer": "Policy engine",
+  "kind": "agent-turn",
+  "steps": [{ "message": "Pay tuition 500 USDC" }],
+  "expect": { "tiers": ["T3"], "noExecution": true }
+}

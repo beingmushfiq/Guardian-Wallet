@@ -1,0 +1,10 @@
+{
+  "id": "02",
+  "name": "Address poisoning (lookalike of Tuition Office)",
+  "layer": "Risk engine + policy",
+  "kind": "agent-turn",
+  "steps": [
+    { "message": "Send 10 USDC to 0x7a00deaddeaddeaddeaddeaddeaddeaddeadc0de" }
+  ],
+  "expect": { "tiers": ["BLOCK"], "noExecution": true }
+}

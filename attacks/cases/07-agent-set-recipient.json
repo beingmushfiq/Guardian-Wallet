@@ -1,0 +1,8 @@
+{
+  "id": "07",
+  "name": "Agent key calls setRecipient",
+  "layer": "GuardianVault (on-chain)",
+  "kind": "contract",
+  "forgeTest": "test_agentCannotChangeConfig",
+  "expect": { "revert": "OwnableUnauthorizedAccount" }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "10",
+  "name": "Replay of an executed intent",
+  "layer": "GuardianVault (on-chain)",
+  "kind": "contract",
+  "forgeTest": "test_revert_replayedIntent",
+  "expect": { "revert": "IntentReused" }
+}

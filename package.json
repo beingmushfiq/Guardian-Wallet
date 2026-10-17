@@ -1,0 +1,17 @@
+{
+  "name": "guardian-wallet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI wallet agent with enforced autonomy: the AI proposes, deterministic policy and an on-chain vault dispose.",
+  "license": "MIT",
+  "scripts": {
+    "install:all": "npm --prefix agent install && npm --prefix web install",
+    "dev:agent": "npm --prefix agent run dev",
+    "dev:web": "npm --prefix web run dev",
+    "test": "npm --prefix agent test",
+    "test:contracts": "cd contracts && forge test -vv",
+    "attacks": "npm --prefix attacks run attacks",
+    "seed": "node agent/node_modules/tsx/dist/cli.mjs demo/seed.ts",
+    "typecheck": "npm --prefix agent run typecheck"
+  }
+}

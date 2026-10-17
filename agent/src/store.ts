@@ -1,0 +1,198 @@
+import { createRequire } from 'node:module';
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+import type { Address, Proposal } from './types.js';
+
+// Loaded via createRequire so test runners (Vite) do not try to bundle the
+// Node built-in `node:sqlite`. Node >= 22.5 ships it; no native dependency.
+const require = createRequire(import.meta.url);
+const { DatabaseSync } = require('node:sqlite') as typeof import('node:sqlite');
+
+/**
+ * Local persistence: pending T3 approvals, recent spend history, block counters,
+ * safety-mode state, and the simulated vault ledger.
+ */
+
+export interface PendingRow {
+  intentId: `0x${string}`;
+  createdAt: number;
+  proposal: Proposal;
+  userMessage: string;
+}
+
+type DB = InstanceType<typeof DatabaseSync>;
+
+let db: DB | null = null;
+
+export function openStore(file: string): DB {
+  if (db) return db;
+  mkdirSync(dirname(file), { recursive: true });
+  db = new DatabaseSync(file);
+  db.exec(`
+    PRAGMA journal_mode = WAL;
+    CREATE TABLE IF NOT EXISTS pending (
+      intent_id TEXT PRIMARY KEY,
+      created_at INTEGER NOT NULL,
+      payload TEXT NOT NULL,
+      user_message TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending'
+    );
+    CREATE TABLE IF NOT EXISTS transfers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      intent_id TEXT NOT NULL,
+      token TEXT NOT NULL,
+      to_address TEXT NOT NULL,
+      amount TEXT NOT NULL,
+      tx_hash TEXT,
+      created_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS blocks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at INTEGER NOT NULL,
+      reason TEXT
+    );
+    CREATE TABLE IF NOT EXISTS meta (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+  `);
+  return db;
+}
+
+export function closeStore(): void {
+  db?.close();
+  db = null;
+}
+
+const getDb = () => {
+  if (!db) throw new Error('Store not opened. Call openStore(file) first.');
+  return db;
+};
+
+// ---------------------------------------------------------------------------
+// Pending approvals
+// ---------------------------------------------------------------------------
+export function addPending(p: Proposal, userMessage: string): void {
+  getDb()
+    .prepare('INSERT OR REPLACE INTO pending (intent_id, created_at, payload, user_message, status) VALUES (?, ?, ?, ?, ?)')
+    .run(p.intentId, Date.now(), JSON.stringify(p, (_k, v) => (typeof v === 'bigint' ? v.toString() : v)), userMessage, 'pending');
+}
+
+export function listPending(): Array<PendingRow & { createdAt: number }> {
+  const rows = getDb().prepare("SELECT * FROM pending WHERE status = 'pending' ORDER BY created_at ASC").all() as any[];
+  return rows.map((r) => ({
+    intentId: r.intent_id,
+    createdAt: r.created_at,
+    proposal: reviveProposal(JSON.parse(r.payload)),
+    userMessage: r.user_message,
+  }));
+}
+
+export function getPending(intentId: string): (PendingRow & { status: string }) | null {
+  const row = getDb().prepare('SELECT * FROM pending WHERE intent_id = ?').get(intentId) as any;
+  if (!row) return null;
+  return {
+    intentId: row.intent_id,
+    createdAt: row.created_at,
+    proposal: reviveProposal(JSON.parse(row.payload)),
+    userMessage: row.user_message,
+    status: row.status,
+  };
+}
+
+export function setPendingStatus(intentId: string, status: 'pending' | 'approved' | 'rejected'): void {
+  getDb().prepare('UPDATE pending SET status = ? WHERE intent_id = ?').run(status, intentId);
+}
+
+function reviveProposal(raw: any): Proposal {
+  return { ...raw, amount: BigInt(raw.amount) } as Proposal;
+}
+
+// ---------------------------------------------------------------------------
+// Transfer history (risk engine: amount anomaly)
+// ---------------------------------------------------------------------------
+export function recordTransfer(p: Proposal, txHash?: string): void {
+  getDb()
+    .prepare('INSERT INTO transfers (intent_id, token, to_address, amount, tx_hash, created_at) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(p.intentId, p.token, p.to, p.amount.toString(), txHash ?? null, Date.now());
+}
+
+export function recentAmounts(limit = 10): bigint[] {
+  const rows = getDb().prepare('SELECT amount FROM transfers ORDER BY id DESC LIMIT ?').all(limit) as any[];
+  return rows.map((r) => BigInt(r.amount));
+}
+
+// ---------------------------------------------------------------------------
+// Block counter / safety mode
+// ---------------------------------------------------------------------------
+export function recordBlock(reason: string): void {
+  getDb().prepare('INSERT INTO blocks (created_at, reason) VALUES (?, ?)').run(Date.now(), reason);
+}
+
+export function blocksInWindow(windowMs: number, now = Date.now()): number {
+  const row = getDb()
+    .prepare('SELECT COUNT(*) AS c FROM blocks WHERE created_at >= ?')
+    .get(now - windowMs) as { c: number };
+  return row.c;
+}
+
+export function clearBlocks(): void {
+  getDb().prepare('DELETE FROM blocks').run();
+}
+
+// ---------------------------------------------------------------------------
+// Meta / simulated ledger
+// ---------------------------------------------------------------------------
+export function getMeta(key: string): string | null {
+  const row = getDb().prepare('SELECT value FROM meta WHERE key = ?').get(key) as { value: string } | undefined;
+  return row ? row.value : null;
+}
+
+export function setMeta(key: string, value: string): void {
+  getDb().prepare('INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, value);
+}
+
+export interface SimLedger {
+  paused: boolean;
+  balance: bigint;
+  spent: bigint;
+  windowStart: number; // epoch seconds
+  spentByRecipient: Record<string, string>; // unused map kept for extension
+}
+
+export function readSimLedger(initialBalance: bigint): SimLedger {
+  const raw = getMeta('sim_ledger');
+  if (!raw) return { paused: false, balance: initialBalance, spent: 0n, windowStart: 0, spentByRecipient: {} };
+  const parsed = JSON.parse(raw);
+  return {
+    paused: Boolean(parsed.paused),
+    balance: BigInt(parsed.balance),
+    spent: BigInt(parsed.spent),
+    windowStart: Number(parsed.windowStart),
+    spentByRecipient: parsed.spentByRecipient ?? {},
+  };
+}
+
+export function writeSimLedger(l: SimLedger): void {
+  setMeta(
+    'sim_ledger',
+    JSON.stringify({
+      paused: l.paused,
+      balance: l.balance.toString(),
+      spent: l.spent.toString(),
+      windowStart: l.windowStart,
+      spentByRecipient: l.spentByRecipient,
+    }),
+  );
+}
+
+export function resetSimLedger(initialBalance: bigint): void {
+  writeSimLedger({ paused: false, balance: initialBalance, spent: 0n, windowStart: 0, spentByRecipient: {} });
+}
+
+// ---------------------------------------------------------------------------
+// Recipient helper
+// ---------------------------------------------------------------------------
+export function truncateAddress(a: Address, chars = 4): string {
+  return `${a.slice(0, chars + 2)}…${a.slice(-chars)}`;
+}

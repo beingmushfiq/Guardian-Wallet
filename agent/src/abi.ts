@@ -1,0 +1,110 @@
+export const VAULT_ABI = [
+  {
+    type: 'function',
+    name: 'transferToken',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'intentId', type: 'bytes32' },
+      { name: 'token', type: 'address' },
+      { name: 'to', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'ownerTransfer',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'intentId', type: 'bytes32' },
+      { name: 'token', type: 'address' },
+      { name: 'to', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    outputs: [],
+  },
+  { type: 'function', name: 'emergencyPause', stateMutability: 'nonpayable', inputs: [], outputs: [] },
+  { type: 'function', name: 'unpause', stateMutability: 'nonpayable', inputs: [], outputs: [] },
+  { type: 'function', name: 'paused', stateMutability: 'view', inputs: [], outputs: [{ type: 'bool' }] },
+  { type: 'function', name: 'agent', stateMutability: 'view', inputs: [], outputs: [{ type: 'address' }] },
+  { type: 'function', name: 'owner', stateMutability: 'view', inputs: [], outputs: [{ type: 'address' }] },
+  {
+    type: 'function',
+    name: 'spentInWindow',
+    stateMutability: 'view',
+    inputs: [{ name: 'token', type: 'address' }],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'windowStart',
+    stateMutability: 'view',
+    inputs: [{ name: 'token', type: 'address' }],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'perTxCap',
+    stateMutability: 'view',
+    inputs: [{ name: 'token', type: 'address' }],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'dailyCap',
+    stateMutability: 'view',
+    inputs: [{ name: 'token', type: 'address' }],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'recipientOk',
+    stateMutability: 'view',
+    inputs: [{ name: 'who', type: 'address' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    type: 'function',
+    name: 'tokenOk',
+    stateMutability: 'view',
+    inputs: [{ name: 'token', type: 'address' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    type: 'function',
+    name: 'intentUsed',
+    stateMutability: 'view',
+    inputs: [{ name: 'intentId', type: 'bytes32' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    type: 'event',
+    name: 'AgentTransfer',
+    inputs: [
+      { name: 'intentId', type: 'bytes32', indexed: true },
+      { name: 'token', type: 'address', indexed: true },
+      { name: 'to', type: 'address', indexed: true },
+      { name: 'amount', type: 'uint256', indexed: false },
+    ],
+  },
+  {
+    type: 'event',
+    name: 'OwnerTransfer',
+    inputs: [
+      { name: 'intentId', type: 'bytes32', indexed: true },
+      { name: 'token', type: 'address', indexed: true },
+      { name: 'to', type: 'address', indexed: true },
+      { name: 'amount', type: 'uint256', indexed: false },
+    ],
+  },
+] as const;
+
+export const ERC20_ABI = [
+  { type: 'function', name: 'balanceOf', stateMutability: 'view', inputs: [{ name: 'a', type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'decimals', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint8' }] },
+] as const;
+
+export const ERROR_SELECTORS: Record<string, string> = {
+  '0x0d3c3b39': 'IsPaused',
+  '0x0a1b2c3d': 'NotAllowed',
+};

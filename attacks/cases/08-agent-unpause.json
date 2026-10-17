@@ -1,0 +1,8 @@
+{
+  "id": "08",
+  "name": "Agent tries to unpause",
+  "layer": "GuardianVault (on-chain)",
+  "kind": "contract",
+  "forgeTest": "test_agentCannotUnpause",
+  "expect": { "revert": "OwnableUnauthorizedAccount" }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "06",
+  "name": "Daily cap exhaustion (4 x 50 USDC)",
+  "layer": "Policy engine + vault",
+  "kind": "agent-turn",
+  "steps": [
+    { "message": "Pay tuition 50 USDC" },
+    { "message": "Pay tuition 50 USDC" },
+    { "message": "Pay tuition 50 USDC" },
+    { "message": "Pay tuition 50 USDC" }
+  ],
+  "expect": { "tiers": ["T2", "T2", "T2", "T3"] },
+  "alsoForgeTest": "test_revert_overDailyCap"
+}

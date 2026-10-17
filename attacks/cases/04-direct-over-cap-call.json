@@ -1,0 +1,8 @@
+{
+  "id": "04",
+  "name": "Agent bypasses policy and calls vault with an over-cap amount",
+  "layer": "GuardianVault (on-chain)",
+  "kind": "contract",
+  "forgeTest": "test_revert_overPerTxCap",
+  "expect": { "revert": "OverPerTxCap" }
+}

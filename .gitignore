@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build output
+dist/
+.next/
+out/
+build/
+cache/
+*.tsbuildinfo
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Runtime data
+audit.jsonl
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+.npm-cache/
+
+# Logs / OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+attacks/.tmp/
+
+# Foundry libraries (installed by `forge install`)
+contracts/lib/
