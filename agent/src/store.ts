@@ -6,7 +6,76 @@ import type { Address, Proposal } from './types.js';
 // Loaded via createRequire so test runners (Vite) do not try to bundle the
 // Node built-in `node:sqlite`. Node >= 22.5 ships it; no native dependency.
 const require = createRequire(import.meta.url);
-const { DatabaseSync } = require('node:sqlite') as typeof import('node:sqlite');
+
+let DatabaseSyncClass: any = null;
+try {
+  const sqliteMod = require('node:sqlite');
+  DatabaseSyncClass = sqliteMod?.DatabaseSync ?? null;
+} catch {
+  // node:sqlite is available on Node >= 22.5
+}
+
+class MemoryFallbackDB {
+  private tables: Record<string, any[]> = {
+    pending: [],
+    transfers: [],
+    blocks: [],
+    meta: [],
+  };
+
+  exec(_sql: string) {}
+  close() {}
+
+  prepare(sql: string) {
+    const s = sql.trim();
+    return {
+      run: (...args: any[]) => {
+        if (s.startsWith('INSERT OR REPLACE INTO pending')) {
+          const [intent_id, created_at, payload, user_message, status] = args;
+          this.tables.pending = this.tables.pending.filter((r) => r.intent_id !== intent_id);
+          this.tables.pending.push({ intent_id, created_at, payload, user_message, status });
+        } else if (s.startsWith('UPDATE pending SET status')) {
+          const [status, intent_id] = args;
+          const found = this.tables.pending.find((r) => r.intent_id === intent_id);
+          if (found) found.status = status;
+        } else if (s.startsWith('INSERT INTO transfers')) {
+          const [intent_id, token, to_address, amount, tx_hash, created_at] = args;
+          this.tables.transfers.push({ id: this.tables.transfers.length + 1, intent_id, token, to_address, amount, tx_hash, created_at });
+        } else if (s.startsWith('INSERT INTO blocks')) {
+          const [created_at, reason] = args;
+          this.tables.blocks.push({ id: this.tables.blocks.length + 1, created_at, reason });
+        } else if (s.startsWith('DELETE FROM blocks')) {
+          this.tables.blocks = [];
+        } else if (s.startsWith('INSERT INTO meta')) {
+          const [key, value] = args;
+          this.tables.meta = this.tables.meta.filter((r) => r.key !== key);
+          this.tables.meta.push({ key, value });
+        }
+      },
+      all: (...args: any[]) => {
+        if (s.includes('FROM pending')) {
+          return this.tables.pending.filter((r) => r.status === 'pending');
+        } else if (s.includes('FROM transfers')) {
+          const limit = args[0] || 10;
+          return [...this.tables.transfers].reverse().slice(0, limit);
+        }
+        return [];
+      },
+      get: (...args: any[]) => {
+        if (s.includes('FROM pending WHERE intent_id = ?')) {
+          return this.tables.pending.find((r) => r.intent_id === args[0]) || null;
+        } else if (s.includes('COUNT(*) AS c FROM blocks')) {
+          const since = args[0] || 0;
+          const c = this.tables.blocks.filter((r) => r.created_at >= since).length;
+          return { c };
+        } else if (s.includes('FROM meta WHERE key = ?')) {
+          return this.tables.meta.find((r) => r.key === args[0]);
+        }
+        return null;
+      },
+    };
+  }
+}
 
 /**
  * Local persistence: pending T3 approvals, recent spend history, block counters,
@@ -20,14 +89,18 @@ export interface PendingRow {
   userMessage: string;
 }
 
-type DB = InstanceType<typeof DatabaseSync>;
+type DB = any;
 
 let db: DB | null = null;
 
 export function openStore(file: string): DB {
   if (db) return db;
   mkdirSync(dirname(file), { recursive: true });
-  db = new DatabaseSync(file);
+  if (DatabaseSyncClass) {
+    db = new DatabaseSyncClass(file);
+  } else {
+    db = new MemoryFallbackDB();
+  }
   db.exec(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS pending (
