@@ -29,6 +29,17 @@ export const api = {
   audit: (limit = 40) => call<{ entries: AuditEntry[] }>(`/api/audit?limit=${limit}`),
   verify: () => call<AuditVerify>('/api/audit/verify'),
   reset: () => call<{ ok: true }>('/api/demo/reset', { method: 'POST', body: '{}' }),
+  updateCaps: (perTxCap: string, dailyCap: string) =>
+    call<{
+      ok: true;
+      perTxCap?: string;
+      dailyCap?: string;
+      call?: { to: `0x${string}`; data: `0x${string}`; value: '0'; chainId: number };
+      mode: 'live' | 'simulated';
+    }>('/api/policy/caps', {
+      method: 'POST',
+      body: JSON.stringify({ perTxCap, dailyCap }),
+    }),
 };
 
 export const short = (a?: string, n = 4) => (a ? `${a.slice(0, n + 2)}…${a.slice(-n)}` : '—');

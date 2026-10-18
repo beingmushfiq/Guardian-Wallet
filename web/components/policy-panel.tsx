@@ -28,7 +28,7 @@ export function PolicyPanel({
       />
 
       {/* Policy Spending Quotas & Caps */}
-      <PolicyMetricsCard state={state} />
+      <PolicyMetricsCard state={state} refresh={refresh} />
 
       {/* Verified Approved Payees */}
       <ApprovedRecipientsCard state={state} />

@@ -35,8 +35,8 @@ export class SimulatedVenue implements Venue {
       paused: l.paused,
       balance: l.balance,
       spentToday: windowExpired ? 0n : l.spent,
-      perTxCap: config.perTxCap,
-      dailyCap: config.dailyCap,
+      perTxCap: l.perTxCap ?? config.perTxCap,
+      dailyCap: l.dailyCap ?? config.dailyCap,
       recipientAllowlist: new Set(config.contacts.filter((c) => c.allowlisted).map((c) => c.address.toLowerCase())),
       tokenAllowlist: new Set([config.token.address.toLowerCase()]),
     };

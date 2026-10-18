@@ -157,6 +157,8 @@ export interface SimLedger {
   balance: bigint;
   spent: bigint;
   windowStart: number; // epoch seconds
+  perTxCap?: bigint;
+  dailyCap?: bigint;
   spentByRecipient: Record<string, string>; // unused map kept for extension
 }
 
@@ -169,6 +171,8 @@ export function readSimLedger(initialBalance: bigint): SimLedger {
     balance: BigInt(parsed.balance),
     spent: BigInt(parsed.spent),
     windowStart: Number(parsed.windowStart),
+    perTxCap: parsed.perTxCap ? BigInt(parsed.perTxCap) : undefined,
+    dailyCap: parsed.dailyCap ? BigInt(parsed.dailyCap) : undefined,
     spentByRecipient: parsed.spentByRecipient ?? {},
   };
 }
@@ -181,6 +185,8 @@ export function writeSimLedger(l: SimLedger): void {
       balance: l.balance.toString(),
       spent: l.spent.toString(),
       windowStart: l.windowStart,
+      perTxCap: l.perTxCap ? l.perTxCap.toString() : undefined,
+      dailyCap: l.dailyCap ? l.dailyCap.toString() : undefined,
       spentByRecipient: l.spentByRecipient,
     }),
   );

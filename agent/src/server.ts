@@ -1,9 +1,11 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import { encodeFunctionData } from 'viem';
+import { VAULT_ABI } from './abi.js';
 import { config, explorerAddress, isLiveMode } from './config.js';
 import { createVenue } from './chain.js';
-import { openStore, resetSimLedger } from './store.js';
-import { readAudit, verifyChain } from './audit.js';
+import { openStore, readSimLedger, resetSimLedger, writeSimLedger } from './store.js';
+import { appendAudit, readAudit, verifyChain } from './audit.js';
 import {
   approvalPayload,
   approvePending,
@@ -14,7 +16,7 @@ import {
   runTurn,
   safetyModeUntil,
 } from './orchestrator.js';
-import { formatUnits } from './planner.js';
+import { formatUnits, parseDecimal } from './planner.js';
 
 openStore(config.dbFile);
 const venue = createVenue();
@@ -108,6 +110,52 @@ app.post('/api/pause', async (req, reply) => {
     return await pauseVault(venue);
   } catch (e) {
     return reply.code(500).send({ error: e instanceof Error ? e.message : String(e) });
+  }
+});
+
+app.post('/api/policy/caps', async (req, reply) => {
+  const { perTxCap, dailyCap } = (req.body ?? {}) as { perTxCap?: string; dailyCap?: string };
+  if (!perTxCap || !dailyCap) {
+    return reply.code(400).send({ error: 'perTxCap and dailyCap are required' });
+  }
+  let pCap: bigint;
+  let dCap: bigint;
+  try {
+    pCap = parseDecimal(perTxCap, config.token.decimals);
+    dCap = parseDecimal(dailyCap, config.token.decimals);
+  } catch {
+    return reply.code(400).send({ error: 'Invalid decimal number format' });
+  }
+  if (pCap <= 0n || dCap <= 0n) {
+    return reply.code(400).send({ error: 'Limits must be strictly greater than zero' });
+  }
+  if (pCap > dCap) {
+    return reply.code(400).send({ error: 'Single payment limit cannot exceed daily allowance' });
+  }
+
+  if (venue.mode === 'simulated') {
+    const l = readSimLedger(1_000_000_000n);
+    l.perTxCap = pCap;
+    l.dailyCap = dCap;
+    writeSimLedger(l);
+    appendAudit({
+      status: 'policy_updated',
+      mode: 'simulated',
+      detail: `Owner adjusted limits: Single = ${perTxCap} ${config.token.symbol}, Daily = ${dailyCap} ${config.token.symbol}`,
+    });
+    return { ok: true, perTxCap, dailyCap, mode: 'simulated' };
+  } else {
+    const call = {
+      to: config.vaultAddress,
+      data: encodeFunctionData({
+        abi: VAULT_ABI,
+        functionName: 'setToken',
+        args: [config.token.address, true, pCap, dCap],
+      }),
+      value: '0' as const,
+      chainId: config.chainId,
+    };
+    return { ok: true, call, mode: 'live' };
   }
 });
 
