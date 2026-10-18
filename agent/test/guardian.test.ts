@@ -398,6 +398,8 @@ describe('security audit: defensive safeguards & balanced tagging', () => {
   it('blocks zero or negative amounts strictly', () => {
     const pZero = {
       intentId: '0x1' as `0x${string}`,
+      kind: 'transfer' as const,
+      reason: 'test',
       token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
       to: TUITION,
       amount: 0n,
@@ -416,6 +418,8 @@ describe('security audit: defensive safeguards & balanced tagging', () => {
   it('blocks zero address recipient', () => {
     const p = {
       intentId: '0x2' as `0x${string}`,
+      kind: 'transfer' as const,
+      reason: 'test',
       token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
       to: '0x0000000000000000000000000000000000000000' as `0x${string}`,
       amount: 10_000_000n,
@@ -431,6 +435,8 @@ describe('security audit: defensive safeguards & balanced tagging', () => {
     // 4 USDC <= 50 USDC / 10 (5 USDC threshold)
     const pMicro = {
       intentId: '0x3' as `0x${string}`,
+      kind: 'transfer' as const,
+      reason: 'test',
       token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
       to: TUITION,
       amount: 4_000_000n,
@@ -445,6 +451,8 @@ describe('security audit: defensive safeguards & balanced tagging', () => {
     // 20 USDC > 5 USDC threshold (10% of 50 USDC cap)
     const pLarge = {
       intentId: '0x4' as `0x${string}`,
+      kind: 'transfer' as const,
+      reason: 'test',
       token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
       to: TUITION,
       amount: 20_000_000n,
@@ -459,6 +467,8 @@ describe('security audit: defensive safeguards & balanced tagging', () => {
   it('routes untrusted document with prompt injection hits to T1 manual review', () => {
     const pInjected = {
       intentId: '0x5' as `0x${string}`,
+      kind: 'transfer' as const,
+      reason: 'test',
       token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
       to: TUITION,
       amount: 4_000_000n,
