@@ -41,6 +41,36 @@ if (fs.existsSync(envFile)) {
   } catch (_) {}
 }
 
+const MIME_TYPES = {
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.mjs': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.txt': 'text/plain; charset=utf-8',
+  '.map': 'application/json',
+};
+
+function serveStaticFile(res, filePath, isImmutable) {
+  const ext = path.extname(filePath).toLowerCase();
+  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  res.writeHead(200, {
+    'Content-Type': contentType,
+    'Cache-Control': isImmutable
+      ? 'public, max-age=31536000, immutable'
+      : 'public, max-age=3600',
+  });
+  fs.createReadStream(filePath).pipe(res);
+}
+
 // Dynamically allocate free local ephemeral ports to guarantee zero collision
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -110,6 +140,29 @@ async function main() {
 
   // 3. Create Passenger Gateway HTTP Server
   const server = http.createServer((req, res) => {
+    const cleanUrl = (req.url || '/').split('?')[0];
+
+    // Direct static serving for Next.js assets (_next/static/...)
+    if (cleanUrl.startsWith('/_next/static/')) {
+      const rel = cleanUrl.slice('/_next/static/'.length);
+      const filePath = path.join(__dirname, 'web', '.next', 'static', rel);
+      const safeDir = path.join(__dirname, 'web', '.next', 'static');
+      if (filePath.startsWith(safeDir) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        return serveStaticFile(res, filePath, true);
+      }
+    }
+
+    // Direct static serving for public assets (/icon.svg, /favicon.ico, etc.)
+    if (cleanUrl !== '/') {
+      const rel = cleanUrl.replace(/^\/+/, '');
+      const publicPath = path.join(__dirname, 'web', 'public', rel);
+      const safeDir = path.join(__dirname, 'web', 'public');
+      if (publicPath.startsWith(safeDir) && fs.existsSync(publicPath) && fs.statSync(publicPath).isFile()) {
+        return serveStaticFile(res, publicPath, false);
+      }
+    }
+
+    // Proxy API routes to Agent, everything else to Next.js
     const isApi = req.url.startsWith('/api/');
     const targetPort = isApi ? agentPort : nextPort;
 
