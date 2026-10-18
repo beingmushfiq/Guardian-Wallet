@@ -146,17 +146,20 @@ try {
 
             $decision = decide($p, $policyCtx, $risk);
 
-            $resultRow = [
-                'proposal' => [
-                    'to'            => $p['to'],
-                    'token'         => $p['token'],
-                    'amount'        => $p['amount'],
-                    'amountDecimal' => $p['amountDecimal'],
-                    'reason'        => $p['reason'],
-                ],
-                'risk'     => $risk,
-                'decision' => $decision,
-            ];
+            // Match contact if recipient is known
+            $contactName = null;
+            if (!empty($state['contacts'])) {
+                foreach ($state['contacts'] as $c) {
+                    if (isset($c['address']) && strtolower($c['address']) === strtolower($p['to'])) {
+                        $contactName = $c['name'] ?? null;
+                        break;
+                    }
+                }
+            }
+
+            $intentId = '0x' . bin2hex(random_bytes(32));
+            $status = 'proposed';
+            $simTxHash = null;
 
             if ($decision['tier'] === 'BLOCK') {
                 recordBlock();
@@ -166,27 +169,30 @@ try {
                 appendAudit([
                     'status' => 'blocked',
                     'mode'   => $state['mode'],
-                    'detail' => implode(', ', $decision['reasons']),
+                    'detail' => implode(', ', $decision['reasons'] ?? []),
                 ]);
-                $resultRow['status'] = 'blocked';
-                $resultRow['txHash'] = null;
+                $status = 'blocked';
             } elseif ($decision['tier'] === 'T3') {
-                $intentId = '0x' . bin2hex(random_bytes(32));
                 addPending($intentId, [
-                    'intentId' => $intentId,
-                    'proposal' => $resultRow['proposal'],
-                    'decision' => $decision,
-                    'risk'     => $risk,
-                    'created'  => $now,
+                    'intentId'    => $intentId,
+                    'userMessage' => $message,
+                    'proposal'    => [
+                        'to'            => $p['to'],
+                        'token'         => $p['token'],
+                        'amount'        => (string)$p['amount'],
+                        'amountDecimal' => (string)($p['amountDecimal'] ?? ($p['amount'] / 1e6)),
+                        'reason'        => $p['reason'] ?? '',
+                    ],
+                    'decision'    => $decision,
+                    'risk'        => $risk,
+                    'created'     => $now,
                 ]);
                 appendAudit([
                     'status' => 'pending_approval',
                     'mode'   => $state['mode'],
                     'detail' => "Approval required: {$p['amountDecimal']} USDC to {$p['to']}",
                 ]);
-                $resultRow['status'] = 'pending';
-                $resultRow['intentId'] = $intentId;
-                $resultRow['txHash'] = null;
+                $status = 'pending';
             } else {
                 // Tier 2: Auto-executed within limits!
                 $simTxHash = '0x' . bin2hex(random_bytes(32));
@@ -204,9 +210,38 @@ try {
                     'detail' => "Auto-executed: {$p['amountDecimal']} USDC to {$p['to']} [Tx: {$simTxHash}]",
                 ]);
 
-                $resultRow['status'] = 'executed_auto';
-                $resultRow['txHash'] = $simTxHash;
-                $resultRow['explorerUrl'] = $CONFIG['explorer'] . '/tx/' . $simTxHash;
+                $status = 'executed';
+            }
+
+            $resultRow = [
+                'intentId'     => $intentId,
+                'to'           => $p['to'],
+                'amount'       => (string)$p['amount'],
+                'amountHuman'  => (string)($p['amountDecimal'] ?? ($p['amount'] / 1e6)),
+                'token'        => $p['token'],
+                'tokenSymbol'  => $CONFIG['token']['symbol'] ?? 'USDC',
+                'tier'         => $decision['tier'],
+                'reasons'      => $decision['reasons'] ?? [],
+                'flags'        => $decision['flags'] ?? [],
+                'riskScore'    => (float)($decision['riskScore'] ?? 0.0),
+                'status'       => $status,
+                'txHash'       => $simTxHash,
+                'mode'         => $state['mode'],
+                'reason'       => $p['reason'] ?? '',
+                'contactName'  => $contactName,
+                // Backward-compatibility:
+                'proposal'     => [
+                    'to'            => $p['to'],
+                    'token'         => $p['token'],
+                    'amount'        => $p['amount'],
+                    'amountDecimal' => $p['amountDecimal'],
+                    'reason'        => $p['reason'],
+                ],
+                'risk'         => $risk,
+                'decision'     => $decision,
+            ];
+            if ($simTxHash) {
+                $resultRow['explorerUrl'] = ($CONFIG['explorer'] ?? '') . '/tx/' . $simTxHash;
             }
 
             $results[] = $resultRow;
@@ -222,7 +257,35 @@ try {
 
     // GET /api/pending
     if ($path === '/pending' && $method === 'GET') {
-        echo json_encode(['pending' => listPending()], JSON_UNESCAPED_SLASHES);
+        $state = getLiveState();
+        $rawPending = listPending();
+        $pendingList = [];
+        foreach ($rawPending as $p) {
+            $proposal = $p['proposal'] ?? [];
+            $to = $proposal['to'] ?? '';
+            $contactName = null;
+            if (!empty($state['contacts'])) {
+                foreach ($state['contacts'] as $c) {
+                    if (isset($c['address']) && strtolower($c['address']) === strtolower($to)) {
+                        $contactName = $c['name'] ?? null;
+                        break;
+                    }
+                }
+            }
+            $pendingList[] = [
+                'intentId'     => $p['intentId'] ?? '',
+                'createdAt'    => (int)($p['created'] ?? ($p['created_at'] ?? 0)),
+                'userMessage'  => $p['userMessage'] ?? '',
+                'to'           => $to,
+                'token'        => $proposal['token'] ?? '',
+                'tokenSymbol'  => $CONFIG['token']['symbol'] ?? 'USDC',
+                'amount'       => (string)($proposal['amount'] ?? '0'),
+                'amountHuman'  => (string)($proposal['amountDecimal'] ?? (($proposal['amount'] ?? 0) / 1e6)),
+                'reason'       => $proposal['reason'] ?? '',
+                'contactName'  => $contactName,
+            ];
+        }
+        echo json_encode(['pending' => $pendingList], JSON_UNESCAPED_SLASHES);
         exit;
     }
 
@@ -234,17 +297,21 @@ try {
             echo json_encode(['error' => 'Pending approval not found']);
             exit;
         }
+        $prop = $item['proposal'] ?? [];
         echo json_encode([
-            'intentId' => $m[1],
-            'call'     => [
+            'intentId'    => $m[1],
+            'call'        => [
                 'to'      => $CONFIG['vault_address'] ?: '0x0000000000000000000000000000000000000000',
                 'data'    => '0x',
                 'value'   => '0',
                 'chainId' => $CONFIG['chain_id'],
             ],
-            'proposal' => $item['proposal'],
-            'decision' => $item['decision'],
-            'mode'     => $CONFIG['vault_address'] ? 'live' : 'simulated',
+            'amountHuman' => (string)($prop['amountDecimal'] ?? (($prop['amount'] ?? 0) / 1e6)),
+            'tokenSymbol' => $CONFIG['token']['symbol'] ?? 'USDC',
+            'to'          => $prop['to'] ?? '',
+            'proposal'    => $prop,
+            'decision'    => $item['decision'] ?? null,
+            'mode'        => $CONFIG['vault_address'] ? 'live' : 'simulated',
         ], JSON_UNESCAPED_SLASHES);
         exit;
     }

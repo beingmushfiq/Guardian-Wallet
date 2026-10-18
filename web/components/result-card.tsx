@@ -15,27 +15,56 @@ import {
 } from 'lucide-react';
 
 export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }) {
-  const [status, setStatus] = useState<TurnRow['status']>(row.status);
+  // Normalize row to handle nested backend formats or missing properties gracefully
+  const reasons: string[] = Array.isArray(row?.reasons)
+    ? row.reasons
+    : Array.isArray((row as any)?.decision?.reasons)
+      ? ((row as any).decision.reasons as string[])
+      : [];
+
+  const flags: string[] = Array.isArray(row?.flags)
+    ? row.flags
+    : Array.isArray((row as any)?.decision?.flags)
+      ? ((row as any).decision.flags as string[])
+      : [];
+
+  const to: string = row?.to || (row as any)?.proposal?.to || '';
+  const amountHuman: string = row?.amountHuman || (row as any)?.proposal?.amountDecimal || (row as any)?.proposal?.amount || '0';
+  const tokenSymbol: string = row?.tokenSymbol || (row as any)?.proposal?.tokenSymbol || 'USDC';
+  const reason: string = row?.reason || (row as any)?.proposal?.reason || '';
+  const tier: TurnRow['tier'] = row?.tier || (row as any)?.decision?.tier || 'T2';
+  const riskScore: number = typeof row?.riskScore === 'number'
+    ? row.riskScore
+    : (typeof (row as any)?.decision?.riskScore === 'number' ? (row as any).decision.riskScore : 0);
+  const intentId: string = row?.intentId || (row as any)?.intent_id || (row as any)?.proposal?.intentId || '';
+  const mode: TurnRow['mode'] = row?.mode || 'simulated';
+  const contactName: string | undefined = row?.contactName;
+
+  const rawStatus = String(row?.status || (row as any)?.status || '');
+  const normalizedStatus: TurnRow['status'] =
+    rawStatus === 'executed_auto' ? 'executed' : (row?.status || 'proposed');
+
+  const [status, setStatus] = useState<TurnRow['status']>(normalizedStatus);
   const [busy, setBusy] = useState<'approve' | 'reject' | null>(null);
   const [error, setError] = useState('');
-  const [hash, setHash] = useState(row.txHash);
+  const [hash, setHash] = useState(row?.txHash || (row as any)?.tx_hash);
   const signOwner = useOwnerSigner();
   const toast = useToast();
-  const style = tierStyle(row.tier);
+  const style = tierStyle(tier);
 
   async function approve() {
     setBusy('approve');
     setError('');
     try {
       let txHash: string | undefined;
-      if (row.mode === 'live') {
-        const payload = await api.approval(row.intentId);
+      if (mode === 'live') {
+        const payload = await api.approval(intentId);
         txHash = await signOwner(payload.call);
       }
-      const out = await api.approve(row.intentId, txHash);
+      const out = await api.approve(intentId, txHash);
       setHash(out.txHash);
       setStatus('executed');
-      toast.success('Payment Approved & Sent', `Successfully sent ${row.amountHuman} ${row.tokenSymbol}`);
+      toast.success('Payment Approved & Sent', `Successfully sent ${amountHuman} ${tokenSymbol}`);
       onDone();
     } catch (e) {
       const err = e instanceof Error ? e.message : String(e);
@@ -50,9 +79,9 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
     setBusy('reject');
     setError('');
     try {
-      await api.reject(row.intentId);
+      await api.reject(intentId);
       setStatus('rejected' as TurnRow['status']);
-      toast.info('Payment Declined', `Cancelled payment of ${row.amountHuman} ${row.tokenSymbol}`);
+      toast.info('Payment Declined', `Cancelled payment of ${amountHuman} ${tokenSymbol}`);
       onDone();
     } catch (e) {
       const err = e instanceof Error ? e.message : String(e);
@@ -68,13 +97,13 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
       ? 'border-emerald-500/50 shadow-[0_0_24px_rgba(16,185,129,0.2)]'
       : status === 'blocked' || status === ('rejected' as string)
       ? 'border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.15)]'
-      : row.tier === 'T2'
+      : tier === 'T2'
       ? 'border-emerald-500/35 dark:border-lime-400/30 shadow-[0_0_20px_rgba(16,185,129,0.12)]'
-      : row.tier === 'T3'
+      : tier === 'T3'
       ? 'border-amber-500/45 dark:border-amber-400/40 shadow-[0_0_20px_rgba(245,158,11,0.18)]'
       : 'border-sky-500/35 dark:border-sky-400/30 shadow-[0_0_20px_rgba(56,189,248,0.12)]';
 
-  const riskPct = Math.round((row.riskScore || 0) * 100);
+  const riskPct = Math.round((riskScore || 0) * 100);
 
   return (
     <div
@@ -86,10 +115,10 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
       <div className="space-y-3.5 min-w-0 w-full overflow-hidden">
         {/* Tier Header and Mode */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <TierChip tier={row.tier} />
+          <TierChip tier={tier} />
           <div className="flex items-center gap-2 shrink-0">
             <span className="font-mono text-[10px] font-medium text-slate-500 dark:text-slate-400">
-              {row.mode === 'live' ? 'Live Vault' : 'Practice Mode'}
+              {mode === 'live' ? 'Live Vault' : 'Practice Mode'}
             </span>
             {hash && (
               <span className="chip border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-mono text-[9px] font-bold">
@@ -104,20 +133,20 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
           <div className="min-w-0">
             <div className="flex items-baseline gap-2">
               <span className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                {row.amountHuman}
+                {amountHuman}
               </span>
-              <span className="text-sm font-bold text-emerald-600 dark:text-lime-400">{row.tokenSymbol}</span>
+              <span className="text-sm font-bold text-emerald-600 dark:text-lime-400">{tokenSymbol}</span>
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 min-w-0">
               <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-                {row.contactName ? `To ${row.contactName}` : 'To new recipient'}
+                {contactName ? `To ${contactName}` : 'To new recipient'}
               </span>
-              <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">({short(row.to, 5)})</span>
+              <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">({short(to, 5)})</span>
             </div>
           </div>
 
           {/* Safety Evaluation Score */}
-          {row.riskScore > 0 && (
+          {riskScore > 0 && (
             <div className="flex flex-col items-end shrink-0">
               <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-600 dark:text-slate-400">
                 <span>RISK</span>
@@ -142,11 +171,11 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
             Security Rule Check
           </div>
           <p className="mt-1.5 text-xs font-semibold leading-relaxed text-slate-900 dark:text-slate-100 break-words">
-            {row.reasons[0]}
+            {reasons[0] || 'Evaluated against security rules.'}
           </p>
-          {row.reasons.length > 1 && (
+          {reasons.length > 1 && (
             <ul className="mt-2 space-y-1 border-t border-slate-200/60 dark:border-white/[0.04] pt-2">
-              {row.reasons.slice(1).map((r, i) => (
+              {reasons.slice(1).map((r, i) => (
                 <li key={i} className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-slate-300 break-words">
                   <span className="text-emerald-600 dark:text-lime-400 font-bold shrink-0">›</span>
                   <span className="break-words">{r}</span>
@@ -158,7 +187,7 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
 
         {/* Security Tags */}
         <div className="flex flex-wrap items-center gap-1.5 min-w-0">
-          {row.flags.map((f) => (
+          {flags.map((f) => (
             <span
               key={f}
               className="chip border-slate-200 bg-white dark:border-white/[0.08] dark:bg-white/[0.02] font-mono text-[10px] text-slate-700 dark:text-slate-300"
@@ -169,9 +198,9 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
         </div>
 
         {/* User Request Reason */}
-        {row.reason && (
+        {reason && (
           <p className="border-l-2 border-slate-300 dark:border-white/20 pl-2.5 text-xs italic leading-relaxed text-slate-600 dark:text-slate-400 break-words">
-            “{row.reason}”
+            “{reason}”
           </p>
         )}
 
@@ -187,7 +216,7 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
                   Payment Paid & Settled On-Chain
                 </div>
                 <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium break-words">
-                  {row.amountHuman} {row.tokenSymbol} sent successfully from vault
+                  {amountHuman} {tokenSymbol} sent successfully from vault
                 </div>
               </div>
             </div>
