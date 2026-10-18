@@ -24,11 +24,12 @@ body {
   min-height: 100%;
   transition: background-color 300ms ease, color 300ms ease;
   overflow-x: hidden;
-  background-color: #05070a;
+  background-color: #070913;
   background-image:
-    radial-gradient(1200px 700px at 15% -5%, rgba(201, 242, 107, 0.08), transparent 60%),
-    radial-gradient(1000px 600px at 85% 10%, rgba(56, 189, 248, 0.06), transparent 55%),
-    radial-gradient(900px 800px at 50% 100%, rgba(16, 185, 129, 0.04), transparent 60%);
+    radial-gradient(1100px 650px at 15% 0%, rgba(16, 185, 129, 0.16), transparent 60%),
+    radial-gradient(1000px 700px at 85% 10%, rgba(99, 102, 241, 0.18), transparent 55%),
+    radial-gradient(1200px 900px at 50% 85%, rgba(163, 230, 53, 0.1), transparent 65%),
+    radial-gradient(800px 600px at 50% 35%, rgba(6, 182, 212, 0.08), transparent 55%);
   background-attachment: fixed;
   color: #f1f5f9;
 }
@@ -37,9 +38,9 @@ body {
 html.light body {
   background-color: #f8fafc;
   background-image:
-    radial-gradient(1200px 700px at 15% -5%, rgba(16, 185, 129, 0.08), transparent 60%),
-    radial-gradient(1000px 600px at 85% 10%, rgba(56, 189, 248, 0.08), transparent 55%),
-    radial-gradient(900px 800px at 50% 100%, rgba(99, 102, 241, 0.04), transparent 60%);
+    radial-gradient(1100px 650px at 15% 0%, rgba(16, 185, 129, 0.12), transparent 60%),
+    radial-gradient(1000px 700px at 85% 10%, rgba(99, 102, 241, 0.12), transparent 55%),
+    radial-gradient(1200px 900px at 50% 85%, rgba(56, 189, 248, 0.1), transparent 65%);
   color: #0f172a;
 }
 
@@ -50,36 +51,36 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(circle at 50% 40%, black 40%, transparent 85%);
+    linear-gradient(to right, rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at 50% 40%, black 45%, transparent 85%);
   z-index: 0;
 }
 
 html.light body::before {
   background-image: 
-    linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
 }
 
 ::selection {
-  background: rgba(201, 242, 107, 0.3);
+  background: rgba(163, 230, 53, 0.35);
   color: #ffffff;
 }
 
 html.light ::selection {
-  background: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.3);
   color: #064e3b;
 }
 
 /* Clean, modern scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: rgba(99, 102, 241, 0.25) transparent;
 }
 html.light * {
-  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
+  scrollbar-color: rgba(99, 102, 241, 0.25) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -90,17 +91,17 @@ html.light * {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(99, 102, 241, 0.25);
   border-radius: 9999px;
 }
 html.light *::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.18);
+  background: rgba(99, 102, 241, 0.22);
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(201, 242, 107, 0.4);
+  background: rgba(163, 230, 53, 0.6);
 }
 html.light *::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.6);
 }
 
 .scrollbar-none {
@@ -118,11 +119,11 @@ html.light *::-webkit-scrollbar-thumb:hover {
   }
   
   html.dark .panel {
-    @apply border-white/[0.08] bg-ink-900/60 shadow-panel backdrop-blur-2xl;
+    @apply border-white/[0.1] bg-slate-900/60 shadow-[0_12px_36px_-10px_rgba(0,0,0,0.5)] backdrop-blur-2xl hover:border-emerald-500/30;
   }
 
   html.light .panel {
-    @apply border-slate-200/90 bg-white/85 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.06)] backdrop-blur-2xl text-slate-900;
+    @apply border-slate-200/90 bg-white/90 shadow-[0_12px_36px_-10px_rgba(99,102,241,0.08)] backdrop-blur-2xl text-slate-900 hover:border-emerald-500/40;
   }
 
   .label {
@@ -138,35 +139,44 @@ html.light *::-webkit-scrollbar-thumb:hover {
   }
 
   /* Tactile Interactive Buttons — Self-contained with rounded-xl, flex centering and transitions */
-  .btn, .btn-ghost, .btn-primary, .btn-danger {
+  .btn, .btn-ghost, .btn-primary, .btn-danger, .btn-accent, .btn-wallet {
     @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
-  /* Primary Button */
+  /* Primary Button (Electric Lime to Cyber Emerald) */
   html.dark .btn-primary {
-    @apply border border-lime-400/40 bg-gradient-to-b from-lime-300 to-lime-500 text-ink-950 font-bold shadow-[0_0_24px_rgba(201,242,107,0.35)] hover:from-lime-200 hover:to-lime-400 hover:shadow-[0_0_30px_rgba(201,242,107,0.5)];
+    @apply border border-lime-300/60 bg-gradient-to-r from-lime-400 via-emerald-400 to-emerald-500 text-slate-950 font-bold shadow-[0_0_24px_rgba(163,230,53,0.4)] hover:shadow-[0_0_32px_rgba(163,230,53,0.6)] hover:brightness-105;
   }
 
   html.light .btn-primary {
-    @apply border border-emerald-600/30 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white font-bold shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:from-emerald-500 hover:to-emerald-600 hover:shadow-[0_6px_20px_rgba(5,150,105,0.35)];
+    @apply border border-emerald-600/40 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white font-bold shadow-[0_4px_16px_rgba(5,150,105,0.3)] hover:shadow-[0_6px_22px_rgba(5,150,105,0.4)] hover:brightness-105;
+  }
+
+  /* Accent Button (Indigo to Cyan) */
+  html.dark .btn-accent {
+    @apply border border-indigo-400/50 bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-bold shadow-[0_0_20px_rgba(99,102,241,0.35)] hover:brightness-110;
+  }
+
+  html.light .btn-accent {
+    @apply border border-indigo-500/40 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-bold shadow-[0_4px_16px_rgba(99,102,241,0.25)] hover:brightness-105;
   }
 
   /* Ghost Button */
   html.dark .btn-ghost {
-    @apply border border-white/[0.1] bg-white/[0.04] text-ink-200 backdrop-blur-md shadow-sm hover:border-white/[0.22] hover:bg-white/[0.08] hover:text-white hover:shadow;
+    @apply border border-white/[0.12] bg-white/[0.05] text-slate-200 backdrop-blur-md shadow-sm hover:border-emerald-400/40 hover:bg-white/[0.1] hover:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.2)];
   }
 
   html.light .btn-ghost {
-    @apply border border-slate-300/80 bg-white/90 text-slate-700 shadow-sm backdrop-blur-md hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950 hover:shadow;
+    @apply border border-slate-300/90 bg-white/95 text-slate-700 shadow-sm backdrop-blur-md hover:border-emerald-500/50 hover:bg-emerald-50/50 hover:text-emerald-950 hover:shadow;
   }
 
-  /* Danger Button */
+  /* Danger Emergency Button (Glowing Ruby/Crimson) */
   html.dark .btn-danger {
-    @apply border border-rose-500/40 bg-gradient-to-r from-rose-500/15 via-rose-500/10 to-rose-500/15 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.15)] hover:border-rose-400/60 hover:bg-rose-500/25 hover:text-white hover:shadow-[0_0_25px_rgba(244,63,94,0.3)];
+    @apply border border-rose-500/60 bg-gradient-to-r from-rose-600/30 via-red-500/25 to-rose-600/30 text-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.25)] hover:border-rose-400 hover:bg-rose-600/40 hover:text-white hover:shadow-[0_0_32px_rgba(244,63,94,0.45)];
   }
 
   html.light .btn-danger {
-    @apply border border-rose-300/90 bg-gradient-to-r from-rose-50 via-rose-100/60 to-rose-50 text-rose-800 font-bold shadow-sm hover:border-rose-400 hover:bg-rose-100 hover:text-rose-950 hover:shadow;
+    @apply border border-rose-300/90 bg-gradient-to-r from-rose-50 via-rose-100/80 to-rose-50 text-rose-800 font-bold shadow-sm hover:border-rose-500 hover:bg-rose-100 hover:text-rose-950 hover:shadow-[0_4px_16px_rgba(244,63,94,0.2)];
   }
 
   .chip {

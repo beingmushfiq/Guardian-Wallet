@@ -32,10 +32,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const addToast = useCallback((type: ToastType, title: string, message?: string, duration = 4000) => {
+  const addToast = useCallback((type: ToastType, title: string, message?: string, duration = 3000) => {
     const id = crypto.randomUUID();
     const newToast: ToastItem = { id, type, title, message, duration };
-    setToasts((prev) => [...prev.slice(-3), newToast]); // keep max 4 toasts
+    setToasts((prev) => [...prev.slice(-2), newToast]); // Stack max 3 toasts
   }, []);
 
   const toast = {
@@ -48,111 +48,93 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast, removeToast }}>
       {children}
-      {/* Toast Viewport */}
+      {/* Dynamic Floating Pill Toast Container (Top Center) */}
       <div
         aria-live="polite"
-        className="fixed bottom-5 right-5 z-50 flex max-w-sm flex-col gap-2.5 pointer-events-none"
+        className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-md px-4"
       >
         {toasts.map((t) => (
-          <ToastCard key={t.id} toast={t} onClose={() => removeToast(t.id)} />
+          <ToastPill key={t.id} toast={t} onClose={() => removeToast(t.id)} />
         ))}
       </div>
     </ToastContext.Provider>
   );
 }
 
-function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: () => void }) {
-  const [progress, setProgress] = useState(100);
-  const duration = toast.duration ?? 4000;
+function ToastPill({ toast, onClose }: { toast: ToastItem; onClose: () => void }) {
+  const duration = toast.duration ?? 3000;
 
   useEffect(() => {
-    const interval = 20;
-    const step = (interval / duration) * 100;
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev <= 0) {
-          clearInterval(timer);
-          onClose();
-          return 0;
-        }
-        return prev - step;
-      });
-    }, interval);
-
-    return () => clearInterval(timer);
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+    return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const styleConfig = {
+  const config = {
     success: {
-      border: 'border-emerald-500/40 dark:border-emerald-400/35',
-      bg: 'bg-white/95 dark:bg-ink-900/95',
+      border: 'border-emerald-500/40 dark:border-emerald-400/40',
+      bg: 'bg-emerald-950/85 dark:bg-emerald-950/90 text-white',
+      dot: 'bg-emerald-400 shadow-[0_0_10px_#34d399]',
+      glow: 'shadow-[0_12px_32px_rgba(16,185,129,0.35)]',
       icon: CheckCircle2,
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-      progress: 'bg-emerald-500 dark:bg-emerald-400',
-      glow: 'shadow-[0_10px_30px_-5px_rgba(16,185,129,0.25)]',
+      iconColor: 'text-emerald-400',
     },
     warning: {
-      border: 'border-amber-500/40 dark:border-amber-400/35',
-      bg: 'bg-white/95 dark:bg-ink-900/95',
+      border: 'border-amber-500/40 dark:border-amber-400/40',
+      bg: 'bg-amber-950/85 dark:bg-amber-950/90 text-white',
+      dot: 'bg-amber-400 shadow-[0_0_10px_#f59e0b]',
+      glow: 'shadow-[0_12px_32px_rgba(245,158,11,0.35)]',
       icon: AlertTriangle,
-      iconColor: 'text-amber-600 dark:text-amber-400',
-      progress: 'bg-amber-500 dark:bg-amber-400',
-      glow: 'shadow-[0_10px_30px_-5px_rgba(245,158,11,0.25)]',
+      iconColor: 'text-amber-400',
     },
     error: {
-      border: 'border-rose-500/40 dark:border-rose-500/35',
-      bg: 'bg-white/95 dark:bg-ink-900/95',
+      border: 'border-rose-500/40 dark:border-rose-400/40',
+      bg: 'bg-rose-950/85 dark:bg-rose-950/90 text-white',
+      dot: 'bg-rose-400 shadow-[0_0_10px_#f43f5e]',
+      glow: 'shadow-[0_12px_32px_rgba(244,63,94,0.35)]',
       icon: AlertOctagon,
-      iconColor: 'text-rose-600 dark:text-rose-400',
-      progress: 'bg-rose-500 dark:bg-rose-400',
-      glow: 'shadow-[0_10px_30px_-5px_rgba(244,63,94,0.25)]',
+      iconColor: 'text-rose-400',
     },
     info: {
-      border: 'border-sky-500/40 dark:border-sky-400/35',
-      bg: 'bg-white/95 dark:bg-ink-900/95',
+      border: 'border-sky-500/40 dark:border-cyan-400/40',
+      bg: 'bg-slate-900/90 dark:bg-slate-900/95 text-white',
+      dot: 'bg-cyan-400 shadow-[0_0_10px_#22d3ee]',
+      glow: 'shadow-[0_12px_32px_rgba(6,182,212,0.35)]',
       icon: Info,
-      iconColor: 'text-sky-600 dark:text-sky-400',
-      progress: 'bg-sky-500 dark:bg-sky-400',
-      glow: 'shadow-[0_10px_30px_-5px_rgba(56,189,248,0.25)]',
+      iconColor: 'text-cyan-400',
     },
   }[toast.type];
 
-  const Icon = styleConfig.icon;
+  const Icon = config.icon;
 
   return (
     <div
-      className={`pointer-events-auto relative overflow-hidden rounded-2xl border ${styleConfig.border} ${styleConfig.bg} ${styleConfig.glow} p-4 shadow-xl backdrop-blur-2xl transition-all duration-300 animate-rise`}
+      onClick={onClose}
+      className={`pointer-events-auto flex items-center gap-3 rounded-full border ${config.border} ${config.bg} ${config.glow} px-4 py-2.5 backdrop-blur-2xl transition-all duration-300 animate-rise cursor-pointer select-none hover:scale-105 active:scale-95`}
+      title="Click to dismiss"
     >
-      <div className="flex items-start gap-3">
-        <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-black/5 dark:bg-white/5 ${styleConfig.iconColor}`}>
-          <Icon className="h-4 w-4" />
-        </div>
-
-        <div className="min-w-0 flex-1 pr-2">
-          <h4 className="text-xs font-bold text-slate-900 dark:text-white">{toast.title}</h4>
-          {toast.message && (
-            <p className="mt-0.5 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
-              {toast.message}
-            </p>
-          )}
-        </div>
-
-        <button
-          onClick={onClose}
-          className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
-          title="Dismiss notification"
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
+      <span className={`h-2 w-2 rounded-full ${config.dot} shrink-0 animate-pulseSoft`} />
+      <Icon className={`h-4 w-4 shrink-0 ${config.iconColor}`} />
+      <div className="flex items-baseline gap-1.5 min-w-0">
+        <span className="text-xs font-bold tracking-tight text-white whitespace-nowrap">
+          {toast.title}
+        </span>
+        {toast.message && (
+          <span className="text-[11px] font-medium text-slate-300 truncate max-w-[220px]">
+            {toast.message}
+          </span>
+        )}
       </div>
-
-      {/* Progress countdown bar */}
-      <div className="absolute inset-x-0 bottom-0 h-1 bg-black/5 dark:bg-white/5">
-        <div
-          className={`h-full ${styleConfig.progress} transition-all duration-75`}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        className="ml-1 text-white/50 hover:text-white transition-colors p-0.5 rounded-full hover:bg-white/10"
+      >
+        <X className="h-3 w-3" />
+      </button>
     </div>
   );
 }

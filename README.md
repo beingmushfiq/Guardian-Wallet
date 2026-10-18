@@ -8,30 +8,31 @@ Built for the Fintechathon on Base Sepolia (chain ID 84532).
 
 ---
 
-## ✨ Web UI & Design System
+## ✨ Web UI & Architecture: Modern Fintech Command Center
 
-Guardian Wallet features a **Spatial Bento Grid UI** designed according to strict **Antigravity Design** principles and **WCAG AA 100% accessible contrast**:
+Guardian Wallet features a **Modern Fintech Command Center UI** designed according to strict **Antigravity Design** principles, vibrant fintech color palettes, and **WCAG AA 100% accessible contrast**:
 
-- **Interactive 3D Three.js Vault Core** (`web/components/three/vault-scene-3d.tsx`):
-  - A real-time rotating crystalline polyhedron with an inner cryptographic nucleus and orbiting particle rings.
-  - Dynamically shifts lighting and colors to mirror vault status: **Emerald/Lime** (Secure), **Amber** (Personal Approval Needed), and **Crimson** (Emergency Frozen).
-- **Spatial Glass Surfaces & Specular Glare** (`web/components/spatial-card.tsx`):
-  - Multi-layer frosted glass panels with cursor-following radial spotlight reflections and stable, non-tilting planar orientation.
-- **Light & Dark Theme Engine** (`web/components/theme-provider.tsx`):
-  - One-click Theme Toggler (Sun / Moon) with seamless persistence via `localStorage`.
-  - **100% WCAG AA Compliance**: High-contrast text (> 14:1 for primary titles, > 5:1 for body and labels in both light and dark modes).
-- **Custom Toast Notification System** (`web/components/ui/toast.tsx`):
-  - Multi-type glassmorphic alerts (Success, Warning, Error, Info) with auto-dismiss progress countdown timers and tactile micro-animations.
-- **Shimmering Skeleton Loaders & Dual-Ring Spinner** (`web/components/ui/skeleton.tsx`, `web/components/ui/loader.tsx`):
-  - Instant perceived performance with skeleton layouts and cryptographic orbital loaders.
-- **Human-First, De-Jargonized Copy**:
-  - Replaces intimidating blockchain and cryptography terms with reassuring, intuitive financial language ("Protected Vault", "Daily Allowance", "Trusted Payees", "Protection Guarantees", "Invoice Scanner").
-- **Motion Choreography & Fluid Scrolling**:
-  - GSAP timeline reveals with spring physics.
-  - Lenis inertial scrolling across conversation logs and activity history.
-- **Progressive Web App (PWA) & Custom Branding**:
-  - Bespoke vector shield emblem in `/logo.svg`.
-  - SVG favicon, Apple touch icons, and web manifest (`app/manifest.ts`).
+- **Top Hero Command Section**:
+  - **3D Gyroscopic Vault Core** (`web/components/three/vault-scene-3d.tsx`): Real-time rotating crystalline crystal with aerospace-grade platinum/titanium gimbal rings and tactile click response.
+  - **Live Spending Telemetry**: High-precision allowance progress gauge, single payment cap, and owner governance notice.
+  - **Emergency Action**: Quick-access tactile Freeze button.
+- **Interactive Security Assistant (Left Workspace)**:
+  - Natural-language payment agent with deterministic security validation.
+  - **Interactive Security Launchpad**: Eliminates idle blank space with 4 one-tap scenario test cards (Instant Allowance, New Payee Review, Prompt Injection Sandbox, Lookalike Address Trap).
+  - **4-Stage Cryptographic Pipeline**: Visual journey from AI Intent → Limits Check → Allowlist Guard → Vault Settlement.
+- **Unified Tabbed Management Center (Right Workspace)**:
+  - Replaces disjointed bento boxes with a focused, ergonomic tab system:
+    - 📋 **Activity Log**: Real-time SHA-256 hash-chained payment audit records.
+    - 📊 **Spending Rules**: Detailed daily quota breakdown and caution mode triggers.
+    - 👥 **Trusted Payees**: Whitelist contacts with one-click test actions.
+    - 🔒 **Protection Rules**: Transparent smart contract power boundary guarantees.
+- **Vibrant Cyber-Emerald & Deep Indigo Mesh**:
+  - Energetic gradients (cyber-emerald `#10b981`, electric lime `#a3e635`, cosmic indigo `#6366f1`, neon cyan `#06b6d4`, and ruby `#f43f5e`).
+  - Tactile buttons with rich colored sheens, hover glows, and active click scaling.
+- **Luxury Floating Pill Toast** (`web/components/ui/toast.tsx`):
+  - Dynamic Island-style floating notification pill positioned at top-center with clean, concise messages and subtle glowing accent dots.
+- **Mobile-First Responsiveness**:
+  - Fluid vertical scrolling, touch-optimized tabs, and responsive layout across phones, tablets, and wide monitors.
 
 ---
 

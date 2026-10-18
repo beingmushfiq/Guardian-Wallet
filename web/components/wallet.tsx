@@ -66,24 +66,24 @@ export function ConnectBar({ owner }: { owner: string }) {
 
       {activeConnected ? (
         <button
-          className="btn-ghost !py-2 !px-3 text-xs font-mono font-medium border-emerald-500/40 bg-emerald-50 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300 hover:border-rose-400 hover:text-rose-600 transition-all"
+          className="btn-ghost !py-2 !px-3.5 text-xs font-mono font-bold border-emerald-500/50 bg-emerald-500/10 text-emerald-800 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:border-rose-400 hover:text-rose-500 transition-all"
           onClick={handleDisconnect}
           title={activeAddress || undefined}
         >
-          <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+          <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulseSoft" />
           <span>{activeAddress ? short(activeAddress, 4) : 'Connected'}</span>
           <LogOut className="h-3.5 w-3.5 opacity-60 hover:opacity-100" />
         </button>
       ) : (
         <button
-          className="btn-ghost !py-2 !px-3.5 text-xs font-semibold shadow-sm hover:shadow"
+          className="btn-primary !py-2 !px-4 text-xs font-bold tracking-tight shadow-md hover:scale-[1.02] active:scale-95 transition-all"
           disabled={isPending}
           onClick={handleConnect}
         >
           {isPending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-600 dark:text-lime-400" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <Wallet className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-400" />
+            <Wallet className="h-3.5 w-3.5" />
           )}
           <span>Connect Owner Wallet</span>
         </button>
