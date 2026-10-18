@@ -1,66 +1,193 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 :root {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
   color-scheme: dark;
 }
 
 html,
 body {
   height: 100%;
+  transition: background-color 300ms ease, color 300ms ease;
 }
 
+/* Dark Mode Background */
 body {
-  background:
-    radial-gradient(1100px 600px at 12% -10%, rgba(201, 242, 107, 0.07), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, rgba(124, 184, 242, 0.05), transparent 55%),
-    #07090c;
-  color: #e7ebf0;
+  background-color: #05070a;
+  background-image:
+    radial-gradient(1200px 700px at 15% -5%, rgba(201, 242, 107, 0.08), transparent 60%),
+    radial-gradient(1000px 600px at 85% 10%, rgba(56, 189, 248, 0.06), transparent 55%),
+    radial-gradient(900px 800px at 50% 100%, rgba(16, 185, 129, 0.04), transparent 60%);
+  background-attachment: fixed;
+  color: #f1f5f9;
+  overflow-x: hidden;
+}
+
+/* Light Mode Background */
+html.light body {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(1200px 700px at 15% -5%, rgba(16, 185, 129, 0.08), transparent 60%),
+    radial-gradient(1000px 600px at 85% 10%, rgba(56, 189, 248, 0.08), transparent 55%),
+    radial-gradient(900px 800px at 50% 100%, rgba(99, 102, 241, 0.04), transparent 60%);
+  color: #0f172a;
+}
+
+/* Subtle grid texture in background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at 50% 40%, black 40%, transparent 85%);
+  z-index: 0;
+}
+
+html.light body::before {
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
 }
 
 ::selection {
-  background: rgba(201, 242, 107, 0.25);
+  background: rgba(201, 242, 107, 0.3);
+  color: #ffffff;
 }
 
-/* Thin, quiet scrollbars */
+html.light ::selection {
+  background: rgba(16, 185, 129, 0.25);
+  color: #064e3b;
+}
+
+/* Thin, sleek cyber scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #252d3a transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
+html.light * {
+  scrollbar-color: rgba(15, 23, 42, 0.2) transparent;
+}
+
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background: #252d3a;
-  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+html.light *::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 242, 107, 0.4);
+}
+html.light *::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.5);
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 @layer components {
+  /* Spatial Glassmorphism (WCAG AA Compliant in both themes) */
   .panel {
-    @apply rounded-2xl border border-white/[0.06] bg-ink-800/60 shadow-panel backdrop-blur;
+    @apply relative overflow-hidden rounded-2xl border transition-all duration-300;
   }
-  .hairline {
-    @apply border-white/[0.07];
+  
+  html.dark .panel {
+    @apply border-white/[0.08] bg-ink-900/60 shadow-panel backdrop-blur-2xl;
   }
+
+  html.light .panel {
+    @apply border-slate-200/90 bg-white/85 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.08)] backdrop-blur-2xl text-slate-900;
+  }
+
   .label {
-    @apply text-[10px] font-medium uppercase tracking-[0.18em] text-ink-400;
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em];
   }
+
+  html.dark .label {
+    @apply text-ink-400;
+  }
+
+  html.light .label {
+    @apply text-slate-600;
+  }
+
+  /* Tactile Interactive Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400/60 disabled:cursor-not-allowed disabled:opacity-40;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400/60 disabled:cursor-not-allowed disabled:opacity-40;
   }
-  .btn-primary {
-    @apply btn bg-lime-400 text-ink-950 hover:bg-lime-500;
+
+  /* Primary Button */
+  html.dark .btn-primary {
+    @apply border border-lime-400/40 bg-gradient-to-b from-lime-300 to-lime-500 text-ink-950 font-bold shadow-[0_0_24px_rgba(201,242,107,0.35)] hover:from-lime-200 hover:to-lime-400;
   }
-  .btn-ghost {
-    @apply btn border border-white/10 bg-white/[0.02] text-ink-200 hover:border-white/20 hover:text-white;
+
+  html.light .btn-primary {
+    @apply border border-emerald-600/30 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white font-bold shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:from-emerald-500 hover:to-emerald-600;
   }
-  .btn-danger {
-    @apply btn border border-rose/30 bg-rose/10 text-rose hover:bg-rose/20;
+
+  /* Ghost Button */
+  html.dark .btn-ghost {
+    @apply border border-white/[0.1] bg-white/[0.03] text-ink-200 backdrop-blur-md hover:border-white/[0.22] hover:bg-white/[0.07] hover:text-white;
   }
+
+  html.light .btn-ghost {
+    @apply border border-slate-300 bg-white text-slate-800 shadow-sm backdrop-blur-md hover:border-slate-400 hover:bg-slate-100 hover:text-slate-950;
+  }
+
+  /* Danger Button */
+  html.dark .btn-danger {
+    @apply border border-rose-500/40 bg-gradient-to-b from-rose-500/20 to-rose-600/30 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.2)] hover:border-rose-400/60 hover:from-rose-500/30 hover:to-rose-600/40 hover:text-white;
+  }
+
+  html.light .btn-danger {
+    @apply border border-rose-300 bg-rose-50 text-rose-700 font-bold shadow-sm hover:border-rose-400 hover:bg-rose-100 hover:text-rose-900;
+  }
+
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide;
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-medium tracking-wide backdrop-blur-md;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

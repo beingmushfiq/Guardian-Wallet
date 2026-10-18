@@ -5,12 +5,21 @@ import { api, short } from '@/lib/api';
 import type { TurnRow } from '@/lib/types';
 import { TierChip, tierStyle } from './tier';
 import { useOwnerSigner } from './wallet';
+import { useToast } from '@/components/ui/toast';
+import {
+  Check,
+  X,
+  ShieldCheck,
+  Loader2,
+  AlertTriangle,
+} from 'lucide-react';
 
 export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }) {
   const [busy, setBusy] = useState<'approve' | 'reject' | null>(null);
   const [error, setError] = useState('');
   const [hash, setHash] = useState(row.txHash);
   const signOwner = useOwnerSigner();
+  const toast = useToast();
   const style = tierStyle(row.tier);
 
   async function approve() {
@@ -24,9 +33,12 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
       }
       const out = await api.approve(row.intentId, txHash);
       setHash(out.txHash);
+      toast.success('Payment Approved', `Successfully sent ${row.amountHuman} ${row.tokenSymbol}`);
       onDone();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      const err = e instanceof Error ? e.message : String(e);
+      setError(err);
+      toast.error('Approval Failed', err);
     } finally {
       setBusy(null);
     }
@@ -37,97 +49,167 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
     setError('');
     try {
       await api.reject(row.intentId);
+      toast.info('Payment Rejected', `Cancelled payment of ${row.amountHuman} ${row.tokenSymbol}`);
       onDone();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      const err = e instanceof Error ? e.message : String(e);
+      setError(err);
+      toast.error('Action Failed', err);
     } finally {
       setBusy(null);
     }
   }
 
+  const borderClass =
+    row.tier === 'T2'
+      ? 'border-emerald-500/35 dark:border-lime-400/30 shadow-[0_0_20px_rgba(16,185,129,0.12)]'
+      : row.tier === 'T3'
+      ? 'border-amber-500/35 dark:border-amber-400/30 shadow-[0_0_20px_rgba(245,158,11,0.12)]'
+      : row.tier === 'BLOCK'
+      ? 'border-rose-500/35 dark:border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.12)]'
+      : 'border-sky-500/35 dark:border-sky-400/30 shadow-[0_0_20px_rgba(56,189,248,0.12)]';
+
+  const riskPct = Math.round((row.riskScore || 0) * 100);
+
   return (
-    <div className={`animate-rise overflow-hidden rounded-2xl border ${style.className.replace('text-', 'border-').split(' ')[0]} bg-ink-800/70`}>
-      <div className={`h-0.5 w-full ${style.dot}`} />
-      <div className="space-y-3 p-4">
-        <div className="flex items-center justify-between gap-3">
+    <div
+      className={`relative overflow-hidden rounded-2xl border bg-white/90 dark:bg-ink-850/80 p-4.5 shadow-sm backdrop-blur-xl transition-all duration-300 ${borderClass}`}
+    >
+      {/* Top Accent Rim */}
+      <div className={`absolute inset-x-0 top-0 h-1 ${style.dot} opacity-80`} />
+
+      <div className="space-y-3.5">
+        {/* Tier Header and Mode */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <TierChip tier={row.tier} />
-          <span className="font-mono text-[10px] text-ink-400">{row.mode === 'live' ? 'on-chain' : 'simulated'}</span>
-        </div>
-
-        <div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-2xl tracking-tight text-white">{row.amountHuman}</span>
-            <span className="text-xs text-ink-400">{row.tokenSymbol}</span>
-          </div>
-          <div className="mt-0.5 flex items-center gap-2 text-[11px] text-ink-300">
-            <span>to {row.contactName ?? 'new address'}</span>
-            <span className="font-mono text-ink-400">{short(row.to, 6)}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] font-medium text-slate-500 dark:text-ink-400">
+              {row.mode === 'live' ? 'Live Vault' : 'Practice Mode'}
+            </span>
+            {hash && (
+              <span className="chip border-slate-200 bg-slate-100 text-slate-700 dark:border-white/10 dark:bg-white/[0.04] font-mono text-[9px] dark:text-ink-300">
+                tx {short(hash, 4)}
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="rounded-xl bg-black/25 p-2.5">
-          <p className="text-[11px] leading-relaxed text-ink-200">{row.reasons[0]}</p>
+        {/* Amount & Destination */}
+        <div className="flex flex-wrap items-end justify-between gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 dark:border-white/[0.05] dark:bg-ink-900/60 p-3">
+          <div>
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                {row.amountHuman}
+              </span>
+              <span className="text-sm font-bold text-emerald-600 dark:text-lime-400">{row.tokenSymbol}</span>
+            </div>
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-700 dark:text-ink-300">
+              <span className="font-semibold text-slate-900 dark:text-ink-100">
+                {row.contactName ? `To ${row.contactName}` : 'To new recipient'}
+              </span>
+              <span className="font-mono text-[11px] text-slate-500 dark:text-ink-400">({short(row.to, 5)})</span>
+            </div>
+          </div>
+
+          {/* Safety Evaluation Score */}
+          {row.riskScore > 0 && (
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-600 dark:text-ink-400">
+                <span>RISK</span>
+                <span className="font-bold text-slate-900 dark:text-white">{riskPct}%</span>
+              </div>
+              <div className="mt-1 h-1.5 w-18 overflow-hidden rounded-full bg-slate-200 dark:bg-white/[0.08]">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    riskPct > 65 ? 'bg-rose-500' : riskPct > 35 ? 'bg-amber-500' : 'bg-emerald-500'
+                  }`}
+                  style={{ width: `${Math.max(5, riskPct)}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Security Rule Check Box */}
+        <div className="rounded-xl border border-slate-200/80 bg-slate-100/70 dark:border-white/[0.06] dark:bg-black/35 p-3">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-ink-400">
+            <ShieldCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+            Security Rule Check
+          </div>
+          <p className="mt-1.5 text-xs font-semibold leading-relaxed text-slate-900 dark:text-ink-100">
+            {row.reasons[0]}
+          </p>
           {row.reasons.length > 1 && (
-            <ul className="mt-1 space-y-0.5">
-              {row.reasons.slice(1).map((r) => (
-                <li key={r} className="text-[11px] leading-relaxed text-ink-400">
-                  · {r}
+            <ul className="mt-2 space-y-1 border-t border-slate-200/60 dark:border-white/[0.04] pt-2">
+              {row.reasons.slice(1).map((r, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-ink-300">
+                  <span className="text-emerald-600 dark:text-lime-400 font-bold">›</span>
+                  <span>{r}</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
+        {/* Security Tags */}
         <div className="flex flex-wrap items-center gap-1.5">
           {row.flags.map((f) => (
-            <span key={f} className="chip border-white/10 bg-white/[0.03] font-mono text-ink-300">
+            <span
+              key={f}
+              className="chip border-slate-200 bg-white dark:border-white/[0.08] dark:bg-white/[0.02] font-mono text-[10px] text-slate-700 dark:text-ink-300"
+            >
               {f.toLowerCase().replaceAll('_', ' ')}
             </span>
           ))}
-          {row.riskScore > 0 && (
-            <span className="chip border-white/10 bg-white/[0.03] text-ink-400">
-              risk {(row.riskScore * 100).toFixed(0)}
-            </span>
-          )}
         </div>
 
-        <p className="text-[11px] italic leading-relaxed text-ink-400">“{row.reason}”</p>
+        {/* User Request Reason */}
+        {row.reason && (
+          <p className="border-l-2 border-slate-300 dark:border-white/20 pl-2.5 text-xs italic leading-relaxed text-slate-600 dark:text-ink-400">
+            “{row.reason}”
+          </p>
+        )}
 
+        {/* Action Controls for Pending Approvals */}
         {row.status === 'pending' && (
-          <div className="flex gap-2 pt-1">
-            <button className="btn-primary flex-1 !py-2 text-xs" onClick={approve} disabled={busy !== null}>
-              {busy === 'approve'
-                ? row.mode === 'live'
-                  ? 'Confirm in wallet…'
-                  : 'Approving…'
-                : row.mode === 'live'
-                  ? 'Approve in wallet'
-                  : 'Approve'}
-            </button>
-            <button className="btn-ghost flex-1 !py-2 text-xs" onClick={reject} disabled={busy !== null}>
-              {busy === 'reject' ? 'Rejecting…' : 'Reject'}
-            </button>
+          <div className="pt-1">
+            <div className="flex gap-2.5">
+              <button
+                className="btn-primary flex-1 !py-2.5 text-xs font-bold"
+                onClick={approve}
+                disabled={busy !== null}
+              >
+                {busy === 'approve' ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Authorizing Payment…</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    <span>Approve Payment</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                className="btn-ghost !border-rose-400/50 !bg-rose-50 text-rose-700 dark:!bg-rose-500/10 dark:text-rose-300 px-4 text-xs font-semibold hover:!bg-rose-100 dark:hover:!bg-rose-500/20"
+                onClick={reject}
+                disabled={busy !== null}
+              >
+                {busy === 'reject' ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <>
+                    <X className="h-3.5 w-3.5" />
+                    <span>Decline</span>
+                  </>
+                )}
+              </button>
+            </div>
+            {error && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400 font-medium">{error}</p>}
           </div>
         )}
-
-        {row.status === 'executed' && (
-          <div className="flex items-center gap-2 rounded-xl border border-mint/20 bg-mint/[0.06] px-2.5 py-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-mint" />
-            <span className="text-[11px] text-mint">Executed</span>
-            <span className="ml-auto font-mono text-[10px] text-ink-300">{short(hash, 6)}</span>
-          </div>
-        )}
-
-        {(row.status === 'blocked' || row.status === 'proposed' || row.status === 'failed') && (
-          <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] px-2.5 py-2">
-            <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-            <span className="text-[11px] text-ink-200">
-              {row.status === 'blocked' ? 'Nothing was sent.' : row.status === 'proposed' ? 'Waiting for you.' : 'Execution failed.'}
-            </span>
-          </div>
-        )}
-
-        {error && <p className="text-[11px] leading-relaxed text-rose">{error}</p>}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useAccount, useConnect, useDisconnect, useSendTransaction, useSwitchChain } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { short } from '@/lib/api';
+import { Wallet, LogOut, ArrowRightLeft, Loader2 } from 'lucide-react';
 
 export function ConnectBar({ owner }: { owner: string }) {
   const { address, isConnected, chainId } = useAccount();
@@ -13,24 +14,39 @@ export function ConnectBar({ owner }: { owner: string }) {
   const injectedConnector = connectors[0];
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {isConnected && chainId !== baseSepolia.id && (
-        <button className="btn-ghost !py-1.5 text-xs" onClick={() => switchChain({ chainId: baseSepolia.id })}>
-          Switch to Base Sepolia
+        <button
+          className="btn-ghost !border-amber-500/40 !bg-amber-50 !text-amber-900 dark:!bg-amber-400/10 dark:!text-amber-300 !py-1.5 text-xs font-bold"
+          onClick={() => switchChain({ chainId: baseSepolia.id })}
+        >
+          <ArrowRightLeft className="h-3 w-3" />
+          <span>Switch Network</span>
         </button>
       )}
+
       {isConnected ? (
-        <button className="btn-ghost !py-1.5 text-xs" onClick={() => disconnect()} title={address}>
-          <span className="h-1.5 w-1.5 rounded-full bg-mint" />
-          {short(address)} · disconnect
+        <button
+          className="btn-ghost !py-1.5 text-xs font-mono font-bold"
+          onClick={() => disconnect()}
+          title={address}
+        >
+          <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+          <span>{short(address, 4)}</span>
+          <LogOut className="h-3 w-3 text-slate-500 hover:text-rose-600 dark:text-ink-400 dark:hover:text-rose-400" />
         </button>
       ) : (
         <button
-          className="btn-ghost !py-1.5 text-xs"
+          className="btn-ghost !py-1.5 text-xs font-bold"
           disabled={isPending || !injectedConnector}
           onClick={() => injectedConnector && connect({ connector: injectedConnector })}
         >
-          Connect owner wallet
+          {isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Wallet className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-400" />
+          )}
+          <span>Connect Owner Wallet</span>
         </button>
       )}
     </div>
@@ -53,9 +69,9 @@ export function useOwnerSigner() {
 
 export function OwnerNotice({ owner }: { owner: string }) {
   return (
-    <p className="text-[11px] leading-relaxed text-ink-400">
-      The agent key can spend only inside policy and can pause. It cannot change recipients, raise limits,
-      or unpause. Owner: <span className="font-mono text-ink-300">{short(owner, 6)}</span>
+    <p className="text-[11px] leading-relaxed text-slate-600 dark:text-ink-400 font-medium">
+      The AI assistant can only send payments that comply with your rules. It can never raise limits,
+      add payees, or unfreeze funds. Owner Wallet: <span className="font-mono text-slate-900 dark:text-ink-200 font-bold">{short(owner, 6)}</span>
     </p>
   );
 }
