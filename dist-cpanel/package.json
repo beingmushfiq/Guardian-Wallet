@@ -1,0 +1,11 @@
+{
+  "name": "guardian-wallet-cpanel",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "next": "^16.4.2"
+  }
+}

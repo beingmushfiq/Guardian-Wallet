@@ -1,6 +1,6 @@
 import type { AgentState, ApprovalPayload, AuditEntry, AuditVerify, PendingApproval, TurnResponse } from './types';
 
-export const AGENT_URL = process.env.NEXT_PUBLIC_AGENT_URL ?? 'http://localhost:8787';
+export const AGENT_URL = process.env.NEXT_PUBLIC_AGENT_URL ?? '';
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${AGENT_URL}${path}`, {
