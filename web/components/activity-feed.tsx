@@ -94,7 +94,7 @@ export function ActivityFeed({ refreshKey }: { refreshKey: number }) {
       </header>
 
       {/* Audit Blocks List */}
-      <div className="min-h-0 flex-1 overflow-y-auto pt-3 space-y-1.5 pr-1">
+      <div data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto pt-3 space-y-1.5 pr-1">
         {error && (
           <div className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
             {error}

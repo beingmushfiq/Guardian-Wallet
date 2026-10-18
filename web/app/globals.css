@@ -14,16 +14,28 @@ html.dark {
 }
 
 html {
-  scroll-behavior: smooth;
   min-height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
 body {
   min-height: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
   transition: background-color 300ms ease, color 300ms ease;
-  overflow-x: hidden;
   background-color: #070913;
   background-image:
     radial-gradient(1100px 650px at 15% 0%, rgba(16, 185, 129, 0.16), transparent 60%),

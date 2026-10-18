@@ -428,7 +428,7 @@ export default function Page() {
                 </div>
 
                 {/* Conversation Log Stream */}
-                <div className="flex-1 space-y-4 overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5 max-h-[460px] lg:max-h-[580px]">
+                <div data-lenis-prevent className="flex-1 space-y-4 overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5 max-h-[460px] lg:max-h-[580px]">
                   {messages.map((m) => (
                     <div key={m.id} className="animate-rise">
                       {m.role === 'user' ? (
@@ -602,14 +602,14 @@ export default function Page() {
                 <div className="border-t border-slate-200/80 bg-slate-50/70 p-3 sm:p-4 dark:border-white/[0.08] dark:bg-slate-900/70 backdrop-blur-xl">
                   <PendingStrip pending={pending} onChanged={refresh} />
 
-                  {/* Colorful Quick Prompt Suggestion Pills */}
-                  <div className="mb-3 flex gap-2 overflow-x-auto pb-1.5 scrollbar-none">
+                  {/* Quick Prompt Suggestion Pills — Responsive Wrap with Zero Horizontal Scroll */}
+                  <div className="mb-3 flex flex-wrap gap-2">
                     {SUGGESTIONS.map((s) => (
                       <button
                         key={s.label}
                         onClick={() => send(s.label)}
                         disabled={sending}
-                        className={`group flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-left shadow-sm transition-all disabled:opacity-40 ${
+                        className={`group flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${
                           s.color === 'emerald'
                             ? 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-400'
                             : s.color === 'amber'
@@ -622,7 +622,7 @@ export default function Page() {
                         }`}
                       >
                         <div>
-                          <div className="text-[11px] font-bold text-slate-800 dark:text-slate-100 group-hover:text-white">
+                          <div className="text-[11px] font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-lime-300">
                             {s.label}
                           </div>
                           <div className="text-[9px] font-mono text-slate-500 dark:text-slate-400">
@@ -714,54 +714,54 @@ export default function Page() {
 
               {/* Right Panel: Focused Tabbed Management Center */}
               <div className={`flex-col gap-3 ${mobileTab === 'activity' || mobileTab === 'rules' ? 'flex' : 'hidden lg:flex'}`}>
-                {/* Segmented Control Navigation Tabs */}
-                <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-slate-200/90 bg-white/90 p-1.5 shadow-sm dark:border-white/[0.1] dark:bg-slate-900/70 backdrop-blur-xl scrollbar-none">
+                {/* Segmented Control Navigation Tabs — Responsive Grid with Zero Horizontal Scroll */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-2xl border border-slate-200/90 bg-white/90 p-1.5 shadow-sm dark:border-white/[0.1] dark:bg-slate-900/70 backdrop-blur-xl">
                   <button
                     onClick={() => setActiveTab('activity')}
-                    className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all whitespace-nowrap ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-bold transition-all text-center ${
                       activeTab === 'activity'
                         ? 'border border-emerald-500/40 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
-                    <Activity className="h-3.5 w-3.5 text-emerald-500" />
-                    <span>Activity Log</span>
+                    <Activity className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span className="truncate">Activity Log</span>
                   </button>
 
                   <button
                     onClick={() => setActiveTab('rules')}
-                    className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all whitespace-nowrap ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-bold transition-all text-center ${
                       activeTab === 'rules'
                         ? 'border border-indigo-500/40 bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
-                    <Gauge className="h-3.5 w-3.5 text-indigo-500" />
-                    <span>Spending Rules</span>
+                    <Gauge className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                    <span className="truncate">Spending Rules</span>
                   </button>
 
                   <button
                     onClick={() => setActiveTab('payees')}
-                    className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all whitespace-nowrap ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-bold transition-all text-center ${
                       activeTab === 'payees'
                         ? 'border border-cyan-500/40 bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
-                    <Users className="h-3.5 w-3.5 text-cyan-500" />
-                    <span>Trusted Payees</span>
+                    <Users className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                    <span className="truncate">Trusted Payees</span>
                   </button>
 
                   <button
                     onClick={() => setActiveTab('guarantees')}
-                    className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all whitespace-nowrap ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-bold transition-all text-center ${
                       activeTab === 'guarantees'
                         ? 'border border-lime-500/40 bg-lime-500/15 text-lime-800 dark:text-lime-300 shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
-                    <Shield className="h-3.5 w-3.5 text-lime-500" />
-                    <span>Protection Rules</span>
+                    <Shield className="h-3.5 w-3.5 text-lime-500 shrink-0" />
+                    <span className="truncate">Protection Rules</span>
                   </button>
                 </div>
 

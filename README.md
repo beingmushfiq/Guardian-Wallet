@@ -34,6 +34,12 @@ Guardian Wallet features a **Modern Fintech Command Center UI** designed accordi
 - **Vibrant Cyber-Emerald & Deep Indigo Mesh**:
   - Energetic gradients (cyber-emerald `#10b981`, electric lime `#a3e635`, cosmic indigo `#6366f1`, neon cyan `#06b6d4`, and ruby `#f43f5e`).
   - Tactile buttons with rich colored sheens, hover glows, and active click scaling.
+- **Lenis Smooth Inertial Scrolling & Motion** (`web/components/smooth-scroll.tsx`):
+  - High-performance Lenis inertial scroll physics with exponential decay interpolation, vertical lock, and `data-lenis-prevent` on internal scroll streams (chat & activity log).
+- **Strict Zero-Horizontal-Scroll Architecture**:
+  - Global `max-width: 100vw` and `overflow-x: clip` prevent accidental page bleeding or horizontal scrollbars across all screen widths.
+  - Responsive multi-column wrapping on prompt suggestion pills.
+  - Adaptive 2×2 mobile to 1×4 desktop grid for Management Center tabs, ensuring 100% viewport fit with zero clipped elements.
 - **Luxury Floating Pill Toast** (`web/components/ui/toast.tsx`):
   - Dynamic Island-style floating notification pill positioned at top-center with clean, concise messages and subtle glowing accent dots.
 
