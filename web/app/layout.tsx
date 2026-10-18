@@ -23,8 +23,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#05070a',
-  colorScheme: 'dark',
+  themeColor: '#f8fafc',
+  colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   applicationName: 'Guardian Wallet',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Guardian Wallet',
   },
   formatDetection: {
@@ -69,8 +69,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} dark`}>
-      <body className="min-h-screen bg-ink-950 font-sans text-ink-100 antialiased selection:bg-lime-400/25 selection:text-white">
+    <html lang="en" className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} light`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const t = localStorage.getItem('guardian-theme');
+                if (t === 'dark') {
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.classList.remove('light');
+                  document.documentElement.style.colorScheme = 'dark';
+                } else {
+                  document.documentElement.classList.add('light');
+                  document.documentElement.classList.remove('dark');
+                  document.documentElement.style.colorScheme = 'light';
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-screen font-sans antialiased selection:bg-lime-400/25 selection:text-white">
         <SmoothScrollProvider>
           <Providers>{children}</Providers>
         </SmoothScrollProvider>

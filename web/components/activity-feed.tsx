@@ -114,7 +114,7 @@ export function ActivityFeed({ refreshKey }: { refreshKey: number }) {
             <div
               key={`${e.seq}-${e.status}`}
               onClick={() => setExpandedSeq(isExpanded ? null : e.seq)}
-              className="group cursor-pointer rounded-xl border border-slate-200/80 bg-slate-50/70 p-2.5 transition-all hover:border-slate-300 hover:bg-slate-100/80 dark:border-white/[0.04] dark:bg-ink-900/40 dark:hover:border-white/[0.12] dark:hover:bg-white/[0.03]"
+              className="group cursor-pointer rounded-xl border border-slate-200/80 bg-slate-50/70 p-2.5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm hover:border-slate-300 hover:bg-slate-100/80 dark:border-white/[0.04] dark:bg-ink-900/40 dark:hover:border-white/[0.12] dark:hover:bg-white/[0.03] will-change-transform"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">

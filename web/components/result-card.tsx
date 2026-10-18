@@ -78,7 +78,7 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
 
   return (
     <div
-      className={`relative w-full min-w-0 overflow-hidden rounded-2xl border bg-white/95 dark:bg-slate-900/90 p-3.5 sm:p-4.5 shadow-sm backdrop-blur-xl transition-all duration-300 ${borderClass}`}
+      className={`relative w-full min-w-0 overflow-hidden rounded-2xl border bg-white/95 dark:bg-slate-900/90 p-3.5 sm:p-4.5 shadow-sm backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform ${borderClass}`}
     >
       {/* Top Accent Rim */}
       <div className={`absolute inset-x-0 top-0 h-1.5 ${style.dot} opacity-90`} />

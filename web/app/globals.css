@@ -134,17 +134,29 @@ html.light *::-webkit-scrollbar-thumb:hover {
 }
 
 @layer components {
-  /* Spatial Glassmorphism (WCAG AA Compliant in both themes) */
+  /* Spatial Glassmorphism (WCAG AA Compliant in both themes) with smooth hover motion */
   .panel {
-    @apply relative overflow-hidden rounded-2xl border transition-all duration-300;
+    @apply relative overflow-hidden rounded-2xl border transition-all duration-300 ease-out will-change-transform;
+  }
+
+  .panel:hover {
+    transform: translateY(-2px);
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 ease-out will-change-transform hover:-translate-y-0.5;
+  }
+
+  .hover-micro {
+    @apply transition-all duration-200 ease-out will-change-transform hover:-translate-y-0.5;
   }
   
   html.dark .panel {
-    @apply border-white/[0.1] bg-slate-900/60 shadow-[0_12px_36px_-10px_rgba(0,0,0,0.5)] backdrop-blur-2xl hover:border-emerald-500/30;
+    @apply border-white/[0.1] bg-slate-900/60 shadow-[0_12px_36px_-10px_rgba(0,0,0,0.5)] backdrop-blur-2xl hover:border-emerald-500/30 hover:shadow-[0_20px_48px_-10px_rgba(0,0,0,0.7),0_0_24px_rgba(16,185,129,0.06)];
   }
 
   html.light .panel {
-    @apply border-slate-200/90 bg-white/90 shadow-[0_12px_36px_-10px_rgba(99,102,241,0.08)] backdrop-blur-2xl text-slate-900 hover:border-emerald-500/40;
+    @apply border-slate-200/90 bg-white/90 shadow-[0_12px_36px_-10px_rgba(99,102,241,0.08)] backdrop-blur-2xl text-slate-900 hover:border-emerald-500/40 hover:shadow-[0_20px_48px_-10px_rgba(99,102,241,0.15),0_0_24px_rgba(16,185,129,0.06)];
   }
 
   .label {
@@ -222,6 +234,11 @@ html.light *::-webkit-scrollbar-thumb:hover {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .panel:hover,
+  .hover-lift:hover,
+  .hover-micro:hover {
+    transform: none !important;
   }
 }
 

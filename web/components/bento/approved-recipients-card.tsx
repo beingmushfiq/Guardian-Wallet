@@ -223,7 +223,7 @@ export function ApprovedRecipientsCard({
               return (
                 <li
                   key={c.address}
-                  className="group flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-2.5 transition-all hover:border-slate-300 hover:bg-slate-100/80 dark:border-white/[0.04] dark:bg-ink-900/40 dark:hover:border-white/[0.12] dark:hover:bg-white/[0.03]"
+                  className="group flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-2.5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm hover:border-slate-300 hover:bg-slate-100/80 dark:border-white/[0.04] dark:bg-ink-900/40 dark:hover:border-white/[0.12] dark:hover:bg-white/[0.03] will-change-transform"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white dark:border-white/[0.08] dark:bg-white/[0.03] text-xs font-bold text-slate-800 dark:text-ink-200 shadow-sm">

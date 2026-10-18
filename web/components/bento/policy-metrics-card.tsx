@@ -297,7 +297,7 @@ export function PolicyMetricsCard({
         {/* Daily Limit Auto-Approval Meter */}
         <div
           onClick={() => !isEditing && handleOpenEdit()}
-          className={`rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 dark:border-white/[0.05] dark:bg-ink-900/50 transition-all ${
+          className={`rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 dark:border-white/[0.05] dark:bg-ink-900/50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform ${
             !isEditing ? 'cursor-pointer hover:border-indigo-400/50 hover:bg-slate-100/70 dark:hover:bg-ink-900/70 group' : ''
           }`}
           title={!isEditing ? 'Click to adjust Daily Limit & Max Payment Cap' : undefined}
@@ -339,7 +339,7 @@ export function PolicyMetricsCard({
         <div className="grid grid-cols-2 gap-2.5">
           <div
             onClick={() => !isEditing && handleOpenEdit()}
-            className={`rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 dark:border-white/[0.05] dark:bg-ink-900/40 transition-all ${
+            className={`rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 dark:border-white/[0.05] dark:bg-ink-900/40 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform ${
               !isEditing ? 'cursor-pointer hover:border-sky-400/50 hover:bg-slate-100/70 dark:hover:bg-ink-900/70 group' : ''
             }`}
             title={!isEditing ? 'Click to adjust Max Payment Cap' : undefined}
@@ -361,7 +361,7 @@ export function PolicyMetricsCard({
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 dark:border-white/[0.05] dark:bg-ink-900/40">
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 dark:border-white/[0.05] dark:bg-ink-900/40 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm will-change-transform">
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-ink-400">
               <Cpu className="h-3 w-3 text-emerald-600 dark:text-lime-400" />
               Assistant Engine

@@ -98,12 +98,12 @@ export function VaultCoreCard({
         </div>
 
         {/* Biometric Holographic Shield HUD (Crisp Vector Alternative to 3D Canvas) */}
-        <div className="relative my-3 h-52 w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-b from-slate-100/70 via-emerald-50/25 to-slate-100/40 p-2 dark:border-white/[0.06] dark:from-white/[0.04] dark:via-lime-400/[0.02] dark:to-transparent shadow-inner">
+        <div className="relative my-3 h-52 w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-b from-slate-100/70 via-emerald-50/25 to-slate-100/40 p-2 dark:border-white/[0.06] dark:from-white/[0.04] dark:via-lime-400/[0.02] dark:to-transparent shadow-inner transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform">
           <VaultShieldHUD status={visualStatus} className="h-full w-full" />
         </div>
 
         {/* Balance Display */}
-        <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 dark:border-white/[0.05] dark:bg-ink-900/50 backdrop-blur-md">
+        <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 dark:border-white/[0.05] dark:bg-ink-900/50 backdrop-blur-md transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm hover:border-slate-300 dark:hover:border-white/10">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-ink-400">
             Available Balance
           </div>

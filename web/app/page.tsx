@@ -130,17 +130,17 @@ export default function Page() {
       gsap.fromTo(
         '.gsap-header',
         { opacity: 0, y: -20 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'transform' }
       );
       gsap.fromTo(
         '.gsap-hero',
         { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.7, delay: 0.1, ease: 'power3.out' }
+        { opacity: 1, y: 0, duration: 0.7, delay: 0.1, ease: 'power3.out', clearProps: 'transform' }
       );
       gsap.fromTo(
         '.gsap-workspace',
         { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.7, delay: 0.2, ease: 'power3.out' }
+        { opacity: 1, y: 0, duration: 0.7, delay: 0.2, ease: 'power3.out', clearProps: 'transform' }
       );
     }, mainContainerRef);
 
@@ -208,7 +208,7 @@ export default function Page() {
     <div ref={mainContainerRef} className="relative min-h-screen font-sans">
       <main className="mx-auto flex min-h-screen max-w-[1600px] flex-col px-3 py-4 sm:px-6 sm:py-6 lg:px-8 pb-24 lg:pb-8">
         {/* Floating Header HUD with vibrant button styling */}
-        <header className="gsap-header mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white/90 p-3.5 shadow-sm backdrop-blur-2xl dark:border-white/[0.1] dark:bg-slate-900/70 dark:shadow-[0_12px_36px_-10px_rgba(0,0,0,0.5)]">
+        <header className="gsap-header mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white/90 p-3.5 shadow-sm backdrop-blur-2xl dark:border-white/[0.1] dark:bg-slate-900/70 dark:shadow-[0_12px_36px_-10px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md dark:hover:border-white/20 will-change-transform">
           <div className="flex items-center gap-3.5">
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 shadow-sm dark:border-lime-400/50 dark:from-lime-400/25 dark:to-emerald-500/15 dark:shadow-[0_0_20px_rgba(163,230,53,0.35)]">
               <img src="/logo.svg" alt="Guardian Wallet Logo" className="h-6 w-6" />
@@ -343,7 +343,7 @@ export default function Page() {
                   setActiveTab('rules');
                   if (mobileTab !== 'rules') setMobileTab('rules');
                 }}
-                className="cursor-pointer group rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 dark:border-white/[0.06] dark:bg-slate-900/50 backdrop-blur-md hover:border-indigo-400/50 transition-all"
+                className="cursor-pointer group rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 dark:border-white/[0.06] dark:bg-slate-900/50 backdrop-blur-md hover:border-indigo-400/50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform"
                 title="Click to configure Daily Limit"
               >
                 <div className="flex items-baseline justify-between">
@@ -382,7 +382,7 @@ export default function Page() {
                     setActiveTab('rules');
                     if (mobileTab !== 'rules') setMobileTab('rules');
                   }}
-                  className="cursor-pointer group rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-white/[0.06] dark:bg-slate-900/50 hover:border-emerald-400/50 transition-all"
+                  className="cursor-pointer group rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-white/[0.06] dark:bg-slate-900/50 hover:border-emerald-400/50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform"
                   title="Click to configure Max Payment Cap"
                 >
                   <div className="flex items-center justify-between">
@@ -404,25 +404,25 @@ export default function Page() {
                   </p>
                 </div>
 
-                    <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-white/[0.06] dark:bg-slate-900/50">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        Assistant Boundary
-                      </div>
-                      <div className="mt-1 flex items-center gap-1.5">
-                        <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-lime-400" />
-                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                          Non-Custodial
-                        </span>
-                      </div>
-                      <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-                        AI cannot change limits, add payees, or access private keys.
-                      </p>
-                    </div>
+                <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-white/[0.06] dark:bg-slate-900/50 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm will-change-transform">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Assistant Boundary
                   </div>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-lime-400" />
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                      Non-Custodial
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                    AI cannot change limits, add payees, or access private keys.
+                  </p>
                 </div>
+              </div>
+            </div>
 
-                {state?.owner && (
-                  <div className="mt-4 flex items-center gap-2 rounded-xl border border-indigo-500/25 bg-indigo-500/5 p-2.5 text-[11px] text-slate-700 dark:text-slate-300">
+            {state?.owner && (
+              <div className="mt-4 flex items-center gap-2 rounded-xl border border-indigo-500/25 bg-indigo-500/5 p-2.5 text-[11px] text-slate-700 dark:text-slate-300 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm will-change-transform">
                     <KeyRound className="h-4 w-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
                     <div className="truncate">
                       Owner Governance Wallet:{' '}
@@ -526,7 +526,7 @@ export default function Page() {
                         <button
                           onClick={() => send('Pay tuition 40 USDC')}
                           disabled={sending}
-                          className="group flex flex-col text-left p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-400 transition-all shadow-sm"
+                          className="group flex flex-col text-left p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-400 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform shadow-sm"
                         >
                           <div className="flex items-center justify-between w-full">
                             <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-400">
@@ -544,7 +544,7 @@ export default function Page() {
                         <button
                           onClick={() => send('Send 10 USDC to 0xdead00000000000000000000000000000000beef')}
                           disabled={sending}
-                          className="group flex flex-col text-left p-3 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-400 transition-all shadow-sm"
+                          className="group flex flex-col text-left p-3 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-400 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform shadow-sm"
                         >
                           <div className="flex items-center justify-between w-full">
                             <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-400">
@@ -565,7 +565,7 @@ export default function Page() {
                             setAttachment(INJECTION_SAMPLE);
                           }}
                           disabled={sending}
-                          className="group flex flex-col text-left p-3 rounded-xl border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-400 transition-all shadow-sm"
+                          className="group flex flex-col text-left p-3 rounded-xl border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-400 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform shadow-sm"
                         >
                           <div className="flex items-center justify-between w-full">
                             <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-rose-400">
@@ -583,7 +583,7 @@ export default function Page() {
                         <button
                           onClick={() => send('Send 25 USDC to 0x7a0000000000000000deadbeef0000000000c0de')}
                           disabled={sending}
-                          className="group flex flex-col text-left p-3 rounded-xl border border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-400 transition-all shadow-sm"
+                          className="group flex flex-col text-left p-3 rounded-xl border border-cyan-500/30 bg-cyan-50/5 hover:bg-cyan-500/10 hover:border-cyan-400 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform shadow-sm"
                         >
                           <div className="flex items-center justify-between w-full">
                             <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-cyan-400">
@@ -605,16 +605,16 @@ export default function Page() {
                           Deterministic Security Pipeline
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono">
-                          <div className="flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-1.5 text-indigo-700 dark:text-indigo-300 font-bold">
+                          <div className="flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-1.5 text-indigo-700 dark:text-indigo-300 font-bold transition-all duration-150 hover:-translate-y-0.5 hover:shadow-xs">
                             <span>1. AI Intent</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-1.5 text-emerald-700 dark:text-emerald-300 font-bold">
+                          <div className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-1.5 text-emerald-700 dark:text-emerald-300 font-bold transition-all duration-150 hover:-translate-y-0.5 hover:shadow-xs">
                             <span>2. Limits Check</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-700 dark:text-amber-300 font-bold">
+                          <div className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-700 dark:text-amber-300 font-bold transition-all duration-150 hover:-translate-y-0.5 hover:shadow-xs">
                             <span>3. Allowlist Guard</span>
                           </div>
-                          <div className="flex items-center gap-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-700 dark:text-cyan-300 font-bold">
+                          <div className="flex items-center gap-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-700 dark:text-cyan-300 font-bold transition-all duration-150 hover:-translate-y-0.5 hover:shadow-xs">
                             <span>4. Vault Settle</span>
                           </div>
                         </div>
@@ -690,7 +690,7 @@ export default function Page() {
                           key={s.label}
                           onClick={() => send(s.label)}
                           disabled={sending}
-                          className={`group flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${
+                          className={`group flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md hover:scale-[1.01] active:scale-[0.98] will-change-transform disabled:opacity-40 ${
                             s.color === 'emerald'
                               ? 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-400'
                               : s.color === 'amber'
@@ -796,8 +796,8 @@ export default function Page() {
 
               {/* Right Panel: Focused Tabbed Management Center */}
               <div className={`flex-col gap-3 ${mobileTab === 'activity' || mobileTab === 'rules' ? 'flex' : 'hidden lg:flex'}`}>
-                {/* Segmented Control Navigation Tabs — Responsive Grid with Zero Horizontal Scroll */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-2xl border border-slate-200/90 bg-white/90 p-1.5 shadow-sm dark:border-white/[0.1] dark:bg-slate-900/70 backdrop-blur-xl">
+                {/* Segmented Control Navigation Tabs — Responsive Grid with Zero Horizontal Scroll and Smooth Hover Motion */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-2xl border border-slate-200/90 bg-white/90 p-1.5 shadow-sm dark:border-white/[0.1] dark:bg-slate-900/70 backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md will-change-transform">
                   <button
                     onClick={() => setActiveTab('activity')}
                     className={`flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-bold transition-all text-center ${

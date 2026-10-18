@@ -18,29 +18,29 @@ export function PowerBoundaryCard({ owner }: { owner?: string }) {
           </span>
         </div>
 
-        <ul className="space-y-2.5 text-xs">
-          <li className="flex items-start gap-2.5 text-slate-800 dark:text-ink-100 font-medium">
+        <ul className="space-y-1.5 text-xs">
+          <li className="flex items-start gap-2.5 rounded-xl p-2 text-slate-800 dark:text-ink-100 font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] will-change-transform">
             <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
               <Check className="h-2.5 w-2.5" />
             </div>
             <span>Auto-pays trusted payees within your set daily limit</span>
           </li>
 
-          <li className="flex items-start gap-2.5 text-slate-800 dark:text-ink-100 font-medium">
+          <li className="flex items-start gap-2.5 rounded-xl p-2 text-slate-800 dark:text-ink-100 font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] will-change-transform">
             <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
               <Check className="h-2.5 w-2.5" />
             </div>
             <span>Freezes all payments instantly if anything looks suspicious</span>
           </li>
 
-          <li className="flex items-start gap-2.5 text-slate-700 dark:text-ink-300 font-medium">
+          <li className="flex items-start gap-2.5 rounded-xl p-2 text-slate-700 dark:text-ink-300 font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] will-change-transform">
             <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400">
               <X className="h-2.5 w-2.5" />
             </div>
             <span>Cannot raise limits, add new payees, or unfreeze itself</span>
           </li>
 
-          <li className="flex items-start gap-2.5 text-slate-700 dark:text-ink-300 font-medium">
+          <li className="flex items-start gap-2.5 rounded-xl p-2 text-slate-700 dark:text-ink-300 font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-100/70 dark:hover:bg-white/[0.03] will-change-transform">
             <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400">
               <X className="h-2.5 w-2.5" />
             </div>
@@ -49,7 +49,7 @@ export function PowerBoundaryCard({ owner }: { owner?: string }) {
         </ul>
 
         {owner && (
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50/70 p-2.5 text-[11px] text-slate-700 dark:border-white/[0.04] dark:bg-ink-900/60 dark:text-ink-400">
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50/70 p-2.5 text-[11px] text-slate-700 dark:border-white/[0.04] dark:bg-ink-900/60 dark:text-ink-400 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm will-change-transform">
             <KeyRound className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-400 shrink-0" />
             <div className="truncate">
               Your Owner Wallet:{' '}

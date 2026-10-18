@@ -48,7 +48,7 @@ export function SpatialCard({
       ref={cardRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      className={`panel group transition-shadow duration-300 hover:shadow-panel-hover ${className}`}
+      className={`panel group ${className}`}
       {...props}
     >
       {/* Specular Edge Highlight */}
