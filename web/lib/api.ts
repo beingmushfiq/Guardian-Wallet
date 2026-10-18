@@ -40,6 +40,16 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ perTxCap, dailyCap }),
     }),
+  addPayee: (name: string, address: string) =>
+    call<{
+      ok: true;
+      mode: 'live' | 'simulated';
+      contact: { name: string; address: string; allowlisted: boolean };
+      call?: { to: `0x${string}`; data: `0x${string}`; value: '0'; chainId: number; description?: string };
+    }>('/api/policy/recipients', {
+      method: 'POST',
+      body: JSON.stringify({ name, address }),
+    }),
 };
 
 export const short = (a?: string, n = 4) => (a ? `${a.slice(0, n + 2)}…${a.slice(-n)}` : '—');

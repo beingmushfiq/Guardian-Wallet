@@ -4,7 +4,7 @@ import { encodeFunctionData } from 'viem';
 import { VAULT_ABI } from './abi.js';
 import { config, explorerAddress, isLiveMode } from './config.js';
 import { createVenue } from './chain.js';
-import { openStore, readSimLedger, resetSimLedger, writeSimLedger } from './store.js';
+import { openStore, readSimLedger, resetSimLedger, writeSimLedger, getCustomContacts, addCustomContact } from './store.js';
 import { appendAudit, readAudit, verifyChain } from './audit.js';
 import {
   approvalPayload,
@@ -33,6 +33,7 @@ app.get('/api/health', async () => ({
 
 app.get('/api/state', async () => {
   const s = await venue.readState();
+  const allContacts = [...config.contacts, ...getCustomContacts()];
   return {
     mode: venue.mode,
     planner: config.anthropicKey ? 'llm' : 'fallback',
@@ -48,7 +49,7 @@ app.get('/api/state', async () => {
     dailyCap: formatUnits(s.dailyCap),
     paused: s.paused,
     safetyModeUntil: safetyModeUntil(),
-    contacts: config.contacts,
+    contacts: allContacts,
     recipientAllowlist: [...s.recipientAllowlist],
     tokenAllowlist: [...s.tokenAllowlist],
     explorerVault: config.vaultAddress ? explorerAddress(config.vaultAddress) : null,
@@ -156,6 +157,50 @@ app.post('/api/policy/caps', async (req, reply) => {
       chainId: config.chainId,
     };
     return { ok: true, call, mode: 'live' };
+  }
+});
+
+app.post('/api/policy/recipients', async (req, reply) => {
+  const { name, address } = (req.body ?? {}) as { name?: string; address?: string };
+  if (!name || typeof name !== 'string' || name.trim().length === 0) {
+    return reply.code(400).send({ error: 'Payee name is required' });
+  }
+  if (!address || typeof address !== 'string' || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
+    return reply.code(400).send({ error: 'Valid Ethereum address (0x...) is required' });
+  }
+  const normAddr = address.toLowerCase() as `0x${string}`;
+  const trimmedName = name.trim();
+  addCustomContact({ name: trimmedName, address: normAddr, allowlisted: true });
+
+  appendAudit({
+    status: 'recipient_added',
+    mode: venue.mode,
+    detail: `Owner added trusted payee: ${trimmedName} (${normAddr})`,
+  });
+
+  if (venue.mode === 'simulated') {
+    return {
+      ok: true,
+      mode: 'simulated',
+      contact: { name: trimmedName, address: normAddr, allowlisted: true },
+    };
+  } else {
+    const call = {
+      to: config.vaultAddress,
+      data: encodeFunctionData({
+        abi: VAULT_ABI,
+        functionName: 'setRecipient',
+        args: [normAddr, true],
+      }),
+      value: '0' as const,
+      chainId: config.chainId,
+    };
+    return {
+      ok: true,
+      call,
+      mode: 'live',
+      contact: { name: trimmedName, address: normAddr, allowlisted: true },
+    };
   }
 });
 

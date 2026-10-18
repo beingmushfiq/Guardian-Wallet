@@ -13,8 +13,6 @@ import { ConnectBar } from '@/components/wallet';
 import { SpatialCard } from '@/components/spatial-card';
 import { useTheme } from '@/components/theme-provider';
 import { useToast } from '@/components/ui/toast';
-import { BeautifulLoader } from '@/components/ui/loader';
-import { SkeletonTerminal, SkeletonCard } from '@/components/ui/skeleton';
 import { BottomNavBar, type MobileTab } from '@/components/bottom-navbar';
 import gsap from 'gsap';
 import {
@@ -37,6 +35,7 @@ import {
   Users,
   Shield,
   KeyRound,
+  Sliders,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -73,7 +72,6 @@ export default function Page() {
 
   const [state, setState] = useState<AgentState | null>(null);
   const [offline, setOffline] = useState(false);
-  const [loadingInitial, setLoadingInitial] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     { id: 'welcome', role: 'assistant', text: WELCOME },
   ]);
@@ -104,8 +102,6 @@ export default function Page() {
       setOffline(false);
     } catch {
       setOffline(true);
-    } finally {
-      setLoadingInitial(false);
     }
     setRefreshKey((k) => k + 1);
   }, []);
@@ -128,7 +124,6 @@ export default function Page() {
 
   // GSAP entrance choreographies
   useEffect(() => {
-    if (loadingInitial) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const ctx = gsap.context(() => {
@@ -150,7 +145,7 @@ export default function Page() {
     }, mainContainerRef);
 
     return () => ctx.revert();
-  }, [loadingInitial]);
+  }, []);
 
   async function send(text?: string) {
     const message = (text ?? input).trim();
@@ -201,9 +196,8 @@ export default function Page() {
     }
   }
 
-  const handleToggleTheme = () => {
-    toggleTheme();
-    toast.info(theme === 'dark' ? 'Switched to Light Mode' : 'Switched to Dark Mode');
+  const handleToggleTheme = (e?: React.MouseEvent<HTMLElement>) => {
+    toggleTheme(e);
   };
 
   const used = Number(state?.spentToday ?? '0');
@@ -259,10 +253,11 @@ export default function Page() {
               {state?.planner === 'llm' ? 'Smart AI Planner' : 'Safety Rules: On'}
             </span>
 
-            {/* Vibrant Theme Switcher */}
+            {/* Vibrant Theme Switcher with Smooth Round Transition */}
             <button
-              onClick={handleToggleTheme}
-              className="btn-ghost !py-2 !px-3 text-xs font-bold border-amber-400/40 bg-amber-400/10 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-300 hover:border-amber-400 hover:scale-105"
+              data-theme-toggle
+              onClick={(e) => handleToggleTheme(e)}
+              className="btn-ghost !py-2 !px-3 text-xs font-bold border-amber-400/40 bg-amber-400/10 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-300 hover:border-amber-400 hover:scale-105 active:scale-95 transition-transform"
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {theme === 'dark' ? (
@@ -303,85 +298,111 @@ export default function Page() {
           </div>
         )}
 
-        {/* Loading Initial State */}
-        {loadingInitial ? (
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-        ) : (
-          <>
-            {/* Top Hero Command Center: Vault Core + Live Spending Guardrails */}
-            <section className={`gsap-hero mb-6 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.1fr)] ${mobileTab === 'vault' ? 'grid' : 'hidden lg:grid'}`}>
-              {/* Hero Card 1: Vault Core, Balance & Emergency Freeze */}
-              <VaultCoreCard
-                state={state}
-                refresh={refresh}
-                onPaused={refresh}
-                hasPending={pending.length > 0}
-              />
+        {/* Top Hero Command Center: Vault Core + Live Spending Guardrails */}
+        <section className={`gsap-hero mb-6 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.1fr)] ${mobileTab === 'vault' ? 'grid' : 'hidden lg:grid'}`}>
+          {/* Hero Card 1: Vault Core, Balance & Emergency Freeze */}
+          <VaultCoreCard
+            state={state}
+            refresh={refresh}
+            onPaused={refresh}
+            hasPending={pending.length > 0}
+          />
 
-              {/* Hero Card 2: Live Spending Guardrails & Allowance Telemetry */}
-              <SpatialCard className="p-5 flex flex-col justify-between" glowColor="rgba(99, 102, 241, 0.12)">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-white/[0.08] pb-3">
-                    <div className="flex items-center gap-2">
-                      <Gauge className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-                      <span className="label font-bold text-slate-800 dark:text-slate-200">
-                        Live Spending Telemetry
-                      </span>
+          {/* Hero Card 2: Live Spending Guardrails & Allowance Telemetry */}
+          <SpatialCard className="p-5 flex flex-col justify-between" glowColor="rgba(99, 102, 241, 0.12)">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-white/[0.08] pb-3">
+                <div className="flex items-center gap-2">
+                  <Gauge className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                  <span className="label font-bold text-slate-800 dark:text-slate-200">
+                    Live Spending Safeguards
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="chip border-emerald-500/40 bg-emerald-500/10 text-[9px] font-mono font-bold text-emerald-800 dark:text-emerald-300">
+                    Hard Enforced
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('rules');
+                      if (mobileTab !== 'rules') setMobileTab('rules');
+                    }}
+                    className="inline-flex items-center gap-1 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300 hover:bg-indigo-500/20 dark:hover:bg-indigo-400/20 active:scale-95 transition-all shadow-sm"
+                    title="Adjust Daily Limit & Max Payment Cap"
+                  >
+                    <Sliders className="h-2.5 w-2.5" />
+                    <span>Set Limits & Caps</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Daily Limit Auto-Approval Progress Meter */}
+              <div
+                onClick={() => {
+                  setActiveTab('rules');
+                  if (mobileTab !== 'rules') setMobileTab('rules');
+                }}
+                className="cursor-pointer group rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 dark:border-white/[0.06] dark:bg-slate-900/50 backdrop-blur-md hover:border-indigo-400/50 transition-all"
+                title="Click to configure Daily Limit"
+              >
+                <div className="flex items-baseline justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                      Daily Limit (24h Rolling Budget)
+                    </span>
+                    <Sliders className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
+                    <span className="text-emerald-600 dark:text-lime-400 text-sm">{used}</span>{' '}
+                    <span className="text-slate-500 dark:text-slate-400">/ {cap} USDC</span>
+                  </span>
+                </div>
+
+                {/* Glowing Multi-Color Progress Bar */}
+                <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/[0.08]">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-lime-400 dark:from-emerald-400 dark:via-lime-400 dark:to-cyan-400 shadow-[0_0_12px_rgba(16,185,129,0.5)] transition-all duration-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+
+                <div className="mt-2 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-medium">
+                  <span>{pct}% utilized today</span>
+                  <span className="font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
+                    {Math.max(0, cap - used)} USDC remaining
+                  </span>
+                </div>
+              </div>
+
+              {/* Max Payment Cap & Assistant Scope Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div
+                  onClick={() => {
+                    setActiveTab('rules');
+                    if (mobileTab !== 'rules') setMobileTab('rules');
+                  }}
+                  className="cursor-pointer group rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-white/[0.06] dark:bg-slate-900/50 hover:border-emerald-400/50 transition-all"
+                  title="Click to configure Max Payment Cap"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Max Payment Cap
                     </div>
-                    <span className="chip border-emerald-500/40 bg-emerald-500/10 text-[9px] font-mono font-bold text-emerald-800 dark:text-emerald-300">
-                      Hard Enforced
+                    <Sliders className="h-2.5 w-2.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="mt-1 flex items-baseline gap-1.5">
+                    <span className="font-display text-xl font-bold text-slate-900 dark:text-white">
+                      {state?.perTxCap ?? '50'}
+                    </span>
+                    <span className="font-mono text-xs font-bold text-emerald-600 dark:text-lime-400">
+                      {state?.token.symbol ?? 'USDC'}
                     </span>
                   </div>
-
-                  {/* Daily Auto-Pay Allowance Progress Meter */}
-                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 dark:border-white/[0.06] dark:bg-slate-900/50 backdrop-blur-md">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                        Daily Auto-Pay Allowance
-                      </span>
-                      <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
-                        <span className="text-emerald-600 dark:text-lime-400 text-sm">{used}</span>{' '}
-                        <span className="text-slate-500 dark:text-slate-400">/ {cap} USDC</span>
-                      </span>
-                    </div>
-
-                    {/* Glowing Multi-Color Progress Bar */}
-                    <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/[0.08]">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-lime-400 dark:from-emerald-400 dark:via-lime-400 dark:to-cyan-400 shadow-[0_0_12px_rgba(16,185,129,0.5)] transition-all duration-500"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-medium">
-                      <span>{pct}% utilized today</span>
-                      <span className="font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
-                        {Math.max(0, cap - used)} USDC remaining
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Single Payment Cap & Assistant Scope Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-white/[0.06] dark:bg-slate-900/50">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        Single Payment Cap
-                      </div>
-                      <div className="mt-1 flex items-baseline gap-1.5">
-                        <span className="font-display text-xl font-bold text-slate-900 dark:text-white">
-                          {state?.perTxCap ?? '50'}
-                        </span>
-                        <span className="font-mono text-xs font-bold text-emerald-600 dark:text-lime-400">
-                          {state?.token.symbol ?? 'USDC'}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-                        Payments above $50 halt for your personal signature.
-                      </p>
-                    </div>
+                  <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                    Single tx limit. Over ${state?.perTxCap ?? '50'} requires owner signature.
+                  </p>
+                </div>
 
                     <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-white/[0.06] dark:bg-slate-900/50">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -602,7 +623,23 @@ export default function Page() {
                   )}
 
                   {sending && (
-                    <BeautifulLoader label="Validating intent against your on-chain rules…" size="sm" />
+                    <div className="flex items-start gap-3 animate-rise">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-lime-400">
+                        <Bot className="h-4 w-4" />
+                      </div>
+                      <div className="rounded-2xl rounded-tl-sm border border-slate-200/80 bg-white/90 px-3.5 py-2.5 text-xs text-slate-700 shadow-sm dark:border-white/[0.08] dark:bg-slate-800/80 dark:text-slate-200 backdrop-blur-md">
+                        <div className="flex items-center gap-2 font-medium">
+                          <span className="flex items-center gap-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-lime-400 animate-pulse" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-lime-400 animate-pulse [animation-delay:200ms]" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-lime-400 animate-pulse [animation-delay:400ms]" />
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                            Analyzing intent against policy…
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
 
@@ -813,14 +850,12 @@ export default function Page() {
                 {/* Tab Content Display */}
                 <div className="flex-1">
                   {activeTab === 'activity' && <ActivityFeed refreshKey={refreshKey} />}
-                  {activeTab === 'rules' && <PolicyMetricsCard state={state} />}
-                  {activeTab === 'payees' && <ApprovedRecipientsCard state={state} />}
+                  {activeTab === 'rules' && <PolicyMetricsCard state={state} refresh={refresh} />}
+                  {activeTab === 'payees' && <ApprovedRecipientsCard state={state} refresh={refresh} />}
                   {activeTab === 'guarantees' && <PowerBoundaryCard owner={state?.owner} />}
                 </div>
               </div>
             </section>
-          </>
-        )}
 
         {/* Status Bar Footer */}
         <footer className="mt-8 mb-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 dark:border-white/[0.08] pt-3.5 text-[11px] text-slate-600 dark:text-slate-400 font-medium">

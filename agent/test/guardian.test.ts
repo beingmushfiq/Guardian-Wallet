@@ -468,4 +468,17 @@ describe('security audit: defensive safeguards & balanced tagging', () => {
     const d = decide(pInjected, baseCtx, zeroRisk);
     expect(d.tier).toBe('T1');
   });
+
+  it('allows owner to add custom trusted payee and includes in simulated venue state', async () => {
+    const { addCustomContact, getCustomContacts } = await import('../src/store.js');
+    const newAddr = '0x1234567890123456789012345678901234567890' as `0x${string}`;
+    addCustomContact({ name: 'Alice Freelancer', address: newAddr, allowlisted: true });
+
+    const contacts = getCustomContacts();
+    expect(contacts.some((c) => c.address.toLowerCase() === newAddr.toLowerCase())).toBe(true);
+
+    const venue = createVenue();
+    const st = await venue.readState();
+    expect(st.recipientAllowlist.has(newAddr.toLowerCase())).toBe(true);
+  });
 });

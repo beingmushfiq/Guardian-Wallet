@@ -15,6 +15,7 @@ import {
   recentAmounts,
   setMeta,
   setPendingStatus,
+  getCustomContacts,
 } from './store.js';
 import type { Address, PolicyContext, Proposal, Tier, TurnResult, Venue } from './types.js';
 
@@ -27,6 +28,8 @@ export function safetyModeUntil(): number {
 export function setSafetyMode(ms: number): void {
   setMeta(SAFETY_KEY, String(ms));
 }
+
+const getAllContacts = () => [...config.contacts, ...getCustomContacts()];
 
 export interface TurnContext {
   venue: Venue;
@@ -44,7 +47,7 @@ export async function runTurn(ctx: TurnContext): Promise<TurnResult> {
   const planned = await plan({
     userMessage,
     untrustedAttachment,
-    contacts: config.contacts,
+    contacts: getAllContacts(),
     balanceHuman: formatUnits(state.balance),
     perTxCapHuman: formatUnits(state.perTxCap),
     dailyCapHuman: formatUnits(state.dailyCap),
@@ -109,7 +112,7 @@ async function processProposal(
   const decision = decide(p, policyCtx, risk);
 
   const amountHuman = formatUnits(p.amount);
-  const contact = config.contacts.find((c) => c.address.toLowerCase() === p.to.toLowerCase());
+  const contact = getAllContacts().find((c) => c.address.toLowerCase() === p.to.toLowerCase());
   const auditBase = {
     intentId: p.intentId,
     userMessage,
@@ -195,7 +198,7 @@ export function pendingApprovals() {
     amount: p.proposal.amount.toString(),
     amountHuman: formatUnits(p.proposal.amount),
     reason: p.proposal.reason,
-    contactName: config.contacts.find((c) => c.address.toLowerCase() === p.proposal.to.toLowerCase())?.name,
+    contactName: getAllContacts().find((c) => c.address.toLowerCase() === p.proposal.to.toLowerCase())?.name,
   }));
 }
 

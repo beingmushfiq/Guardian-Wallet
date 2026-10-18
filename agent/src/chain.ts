@@ -10,7 +10,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia } from 'viem/chains';
 import { ERC20_ABI, VAULT_ABI } from './abi.js';
 import { config } from './config.js';
-import { readSimLedger, writeSimLedger } from './store.js';
+import { readSimLedger, writeSimLedger, getCustomContacts } from './store.js';
 import type { Address, ExecutionResult, Proposal, SimulationResult, Venue, VenueState } from './types.js';
 
 const ZERO = '0x0000000000000000000000000000000000000000' as Address;
@@ -31,13 +31,14 @@ export class SimulatedVenue implements Venue {
   async readState(): Promise<VenueState> {
     const l = readSimLedger(this.initialBalance);
     const windowExpired = Math.floor(Date.now() / 1000) >= l.windowStart + 86_400;
+    const allContacts = [...config.contacts, ...getCustomContacts()];
     return {
       paused: l.paused,
       balance: l.balance,
       spentToday: windowExpired ? 0n : l.spent,
       perTxCap: l.perTxCap ?? config.perTxCap,
       dailyCap: l.dailyCap ?? config.dailyCap,
-      recipientAllowlist: new Set(config.contacts.filter((c) => c.allowlisted).map((c) => c.address.toLowerCase())),
+      recipientAllowlist: new Set(allContacts.filter((c) => c.allowlisted).map((c) => c.address.toLowerCase())),
       tokenAllowlist: new Set([config.token.address.toLowerCase()]),
     };
   }
@@ -134,6 +135,7 @@ export class LiveVenue implements Venue {
 
   async readState(): Promise<VenueState> {
     const token = config.token.address;
+    const allContacts = [...config.contacts, ...getCustomContacts()];
     const [paused, spent, start, balance, perTxCap, dailyCap, tokenAllowed, ...recipientFlags] = await Promise.all([
       this.publicClient.readContract({ address: this.vault, abi: VAULT_ABI, functionName: 'paused' }),
       this.publicClient.readContract({ address: this.vault, abi: VAULT_ABI, functionName: 'spentInWindow', args: [token] }),
@@ -142,14 +144,14 @@ export class LiveVenue implements Venue {
       this.publicClient.readContract({ address: this.vault, abi: VAULT_ABI, functionName: 'perTxCap', args: [token] }),
       this.publicClient.readContract({ address: this.vault, abi: VAULT_ABI, functionName: 'dailyCap', args: [token] }),
       this.publicClient.readContract({ address: this.vault, abi: VAULT_ABI, functionName: 'tokenOk', args: [token] }),
-      ...config.contacts.map((c) =>
+      ...allContacts.map((c) =>
         this.publicClient.readContract({ address: this.vault, abi: VAULT_ABI, functionName: 'recipientOk', args: [c.address] }),
       ),
     ]);
 
     const windowExpired = BigInt(Math.floor(Date.now() / 1000)) >= start + 86_400n;
     const recipientAllowlist = new Set<string>();
-    config.contacts.forEach((c, i) => {
+    allContacts.forEach((c, i) => {
       if (recipientFlags[i]) recipientAllowlist.add(c.address.toLowerCase());
     });
 

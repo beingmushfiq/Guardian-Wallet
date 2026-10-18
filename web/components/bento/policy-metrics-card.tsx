@@ -141,18 +141,18 @@ export function PolicyMetricsCard({
               </span>
             </div>
 
-            {/* Input 1: Single Payment Limit (perTxCap) */}
+            {/* Input 1: Max Payment Cap (perTxCap) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <label className="font-bold text-slate-800 dark:text-slate-200">
-                  Single Payment Auto-Approval Limit
+                  Max Payment Cap (Single Auto-Approval Limit)
                 </label>
                 <span className="font-mono text-xs font-bold text-emerald-700 dark:text-lime-400">
                   {perTx} {state?.token.symbol ?? 'USDC'}
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight">
-                Any payment above this amount automatically halts and requires your explicit approval.
+                Any single transaction above this amount automatically halts and requires your explicit signature.
               </p>
 
               <div className="flex items-center gap-2 pt-1">
@@ -194,11 +194,11 @@ export function PolicyMetricsCard({
               </div>
             </div>
 
-            {/* Input 2: 24h Rolling Daily Allowance (dailyCap) */}
+            {/* Input 2: Daily Limit (dailyCap) */}
             <div className="space-y-1.5 pt-2 border-t border-slate-200/60 dark:border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
                 <label className="font-bold text-slate-800 dark:text-slate-200">
-                  24-Hour Rolling Budget Limit
+                  Daily Limit (24-Hour Rolling Budget)
                 </label>
                 <span className="font-mono text-xs font-bold text-indigo-700 dark:text-indigo-400">
                   {daily} {state?.token.symbol ?? 'USDC'}
@@ -294,12 +294,23 @@ export function PolicyMetricsCard({
           </div>
         )}
 
-        {/* Daily Auto-Approval Meter */}
-        <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 dark:border-white/[0.05] dark:bg-ink-900/50">
+        {/* Daily Limit Auto-Approval Meter */}
+        <div
+          onClick={() => !isEditing && handleOpenEdit()}
+          className={`rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 dark:border-white/[0.05] dark:bg-ink-900/50 transition-all ${
+            !isEditing ? 'cursor-pointer hover:border-indigo-400/50 hover:bg-slate-100/70 dark:hover:bg-ink-900/70 group' : ''
+          }`}
+          title={!isEditing ? 'Click to adjust Daily Limit & Max Payment Cap' : undefined}
+        >
           <div className="flex items-baseline justify-between">
-            <span className="text-[11px] font-bold text-slate-800 dark:text-ink-200">
-              Daily Auto-Pay Allowance
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold text-slate-800 dark:text-ink-200">
+                Daily Limit (Auto-Pay Budget)
+              </span>
+              {!isEditing && (
+                <Sliders className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
+            </div>
             <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
               {state?.spentToday ?? '0'}{' '}
               <span className="font-medium text-slate-500 dark:text-ink-400">
@@ -326,10 +337,21 @@ export function PolicyMetricsCard({
 
         {/* Sub-Metrics Grid */}
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 dark:border-white/[0.05] dark:bg-ink-900/40">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-ink-400">
-              <Zap className="h-3 w-3 text-sky-600 dark:text-sky-400" />
-              Single Payment Limit
+          <div
+            onClick={() => !isEditing && handleOpenEdit()}
+            className={`rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 dark:border-white/[0.05] dark:bg-ink-900/40 transition-all ${
+              !isEditing ? 'cursor-pointer hover:border-sky-400/50 hover:bg-slate-100/70 dark:hover:bg-ink-900/70 group' : ''
+            }`}
+            title={!isEditing ? 'Click to adjust Max Payment Cap' : undefined}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-ink-400">
+                <Zap className="h-3 w-3 text-sky-600 dark:text-sky-400" />
+                Max Payment Cap
+              </div>
+              {!isEditing && (
+                <Sliders className="h-2.5 w-2.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
             </div>
             <div className="mt-1 font-mono text-sm font-bold text-slate-900 dark:text-white">
               {state?.perTxCap ?? '50'}{' '}

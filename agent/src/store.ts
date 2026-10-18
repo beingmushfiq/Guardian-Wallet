@@ -197,8 +197,37 @@ export function resetSimLedger(initialBalance: bigint): void {
 }
 
 // ---------------------------------------------------------------------------
-// Recipient helper
+// Recipient helper & custom contacts persistence
 // ---------------------------------------------------------------------------
 export function truncateAddress(a: Address, chars = 4): string {
   return `${a.slice(0, chars + 2)}…${a.slice(-chars)}`;
+}
+
+export interface CustomContactItem {
+  name: string;
+  address: Address;
+  allowlisted: boolean;
+}
+
+export function getCustomContacts(): CustomContactItem[] {
+  const raw = getMeta('custom_contacts');
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+export function addCustomContact(c: { name: string; address: Address; allowlisted?: boolean }): CustomContactItem[] {
+  const existing = getCustomContacts();
+  const lower = c.address.toLowerCase();
+  const filtered = existing.filter((item) => item.address.toLowerCase() !== lower);
+  filtered.push({
+    name: c.name.trim(),
+    address: c.address,
+    allowlisted: c.allowlisted !== false,
+  });
+  setMeta('custom_contacts', JSON.stringify(filtered));
+  return filtered;
 }
