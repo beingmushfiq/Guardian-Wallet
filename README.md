@@ -20,6 +20,7 @@ Guardian Wallet features a **Modern Fintech Command Center UI** designed accordi
   - Natural-language payment agent with deterministic security validation.
   - **Interactive Security Launchpad**: Eliminates idle blank space with 4 one-tap scenario test cards (Instant Allowance, New Payee Review, Prompt Injection Sandbox, Lookalike Address Trap).
   - **4-Stage Cryptographic Pipeline**: Visual journey from AI Intent → Limits Check → Allowlist Guard → Vault Settlement.
+  - **Expandable / Collapsible Test Scenarios** (`web/app/page.tsx`): Streamlined drawer that is **collapsed by default** to preserve maximum vertical chat workspace, with a one-tap toggle (`[ ✨ Quick Test Scenarios (5) ▾ ]`) to expand all test scenario pills.
   - **Crystal-Clear Payment Lifecycle** (`web/components/result-card.tsx`): Immediate visual state transitions upon approval (`✓ PAYMENT PAID & SETTLED ON-CHAIN` with transaction hash) or decline (`✕ PAYMENT DECLINED & CANCELLED`), permanently removing action buttons to prevent confusion or duplicate execution errors.
 - **Unified Tabbed Management Center (Right Workspace)**:
   - Replaces disjointed bento boxes with a focused, ergonomic tab system:
