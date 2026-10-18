@@ -10,6 +10,7 @@ out/
 build/
 cache/
 *.tsbuildinfo
+*.zip
 contracts/out/
 contracts/cache/
 contracts/broadcast/

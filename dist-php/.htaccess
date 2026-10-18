@@ -1,0 +1,29 @@
+# LiteSpeed & Apache Directives for Guardian Wallet
+# Zero Node.js processes, 0% idle CPU, instant static asset delivery
+
+Options -Indexes
+RewriteEngine On
+
+# Ensure proper MIME types for CSS, JS, fonts, icons, manifest
+AddType text/css .css
+AddType application/javascript .js
+AddType application/manifest+json .webmanifest
+AddType image/svg+xml .svg
+AddType font/woff2 .woff2
+AddType font/woff .woff
+
+# 1. Route /api requests to PHP micro-router
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+RewriteRule ^api$ api/index.php [QSA,L]
+
+# 2. LiteSpeed hidden folder bypass: transparently route /_next to /assets
+RewriteRule ^_next/(.*)$ assets/$1 [QSA,L]
+
+# 3. Serve existing files directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 4. Client-side route fallback to index.html (ONLY for HTML page navigation, NEVER for missing static assets!)
+RewriteCond %{REQUEST_URI} !.(css|js|woff2|woff|ttf|svg|png|jpg|jpeg|gif|ico|webmanifest|json|php)$ [NC]
+RewriteRule ^ index.html [L]

@@ -211,7 +211,7 @@ export default function Page() {
         <header className="gsap-header mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white/90 p-3.5 shadow-sm backdrop-blur-2xl dark:border-white/[0.1] dark:bg-slate-900/70 dark:shadow-[0_12px_36px_-10px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md dark:hover:border-white/20 will-change-transform">
           <div className="flex items-center gap-3.5">
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 shadow-sm dark:border-lime-400/50 dark:from-lime-400/25 dark:to-emerald-500/15 dark:shadow-[0_0_20px_rgba(163,230,53,0.35)]">
-              <img src="/logo.svg" alt="Guardian Wallet Logo" className="h-6 w-6" />
+              <img src="/logo.svg" alt="Guardian Wallet Logo" width={24} height={24} style={{ width: 24, height: 24 }} className="h-6 w-6" />
               <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 dark:bg-lime-400 shadow-[0_0_8px_#34d399] animate-pulseSoft" />
             </div>
 

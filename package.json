@@ -13,6 +13,7 @@
     "attacks": "npm --prefix attacks run attacks",
     "seed": "node agent/node_modules/tsx/dist/cli.mjs demo/seed.ts",
     "typecheck": "npm --prefix agent run typecheck",
-    "package:cpanel": "node scripts/package-cpanel.mjs"
+    "package:cpanel": "node scripts/package-cpanel.mjs",
+    "package:php": "node scripts/package-php.mjs"
   }
 }
