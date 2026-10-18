@@ -37,6 +37,8 @@ import {
   Users,
   Shield,
   KeyRound,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface Message {
@@ -79,6 +81,7 @@ export default function Page() {
   const [input, setInput] = useState('');
   const [attachment, setAttachment] = useState('');
   const [showAttachment, setShowAttachment] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [sending, setSending] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<'activity' | 'rules' | 'payees' | 'guarantees'>('activity');
@@ -607,39 +610,76 @@ export default function Page() {
                 <div className="border-t border-slate-200/80 bg-slate-50/70 p-3 sm:p-4 dark:border-white/[0.08] dark:bg-slate-900/70 backdrop-blur-xl">
                   <PendingStrip pending={pending} onChanged={refresh} />
 
-                  {/* Quick Prompt Suggestion Pills — Responsive Wrap with Zero Horizontal Scroll */}
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {SUGGESTIONS.map((s) => (
+                  {/* Expandable/Collapsible Quick Prompt Suggestion Header (Default Collapsed) */}
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setShowSuggestions((v) => !v)}
+                      className="group inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white/90 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition-all hover:border-emerald-400 hover:bg-slate-100 hover:text-slate-900 dark:border-white/10 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:border-lime-400/50 dark:hover:bg-slate-800 dark:hover:text-white active:scale-95"
+                      title={showSuggestions ? 'Collapse test prompts' : 'Expand test prompts'}
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-400 transition-transform group-hover:rotate-12" />
+                      <span>Quick Test Scenarios</span>
+                      <span className="chip border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-mono font-bold text-emerald-700 dark:text-lime-300">
+                        {SUGGESTIONS.length}
+                      </span>
+                      {showSuggestions ? (
+                        <ChevronUp className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200" />
+                      )}
+                    </button>
+
+                    {showSuggestions ? (
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:inline">
+                        Click any prompt to simulate Guardian policy enforcement
+                      </span>
+                    ) : (
                       <button
-                        key={s.label}
-                        onClick={() => send(s.label)}
-                        disabled={sending}
-                        className={`group flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${
-                          s.color === 'emerald'
-                            ? 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-400'
-                            : s.color === 'amber'
-                            ? 'border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-400'
-                            : s.color === 'rose'
-                            ? 'border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 hover:border-rose-400'
-                            : s.color === 'cyan'
-                            ? 'border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 hover:border-cyan-400'
-                            : 'border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 hover:border-orange-400'
-                        }`}
+                        type="button"
+                        onClick={() => setShowSuggestions(true)}
+                        className="text-[11px] font-semibold text-emerald-700 dark:text-lime-400 hover:underline cursor-pointer"
                       >
-                        <div>
-                          <div className="text-[11px] font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-lime-300">
-                            {s.label}
-                          </div>
-                          <div className="text-[9px] font-mono text-slate-500 dark:text-slate-400">
-                            {s.hint}
-                          </div>
-                        </div>
-                        <span className="chip border-white/20 bg-black/10 dark:bg-white/10 text-[9px] font-mono font-bold text-slate-800 dark:text-slate-200">
-                          {s.tag}
-                        </span>
+                        Show suggestions
                       </button>
-                    ))}
+                    )}
                   </div>
+
+                  {/* Expandable Suggestions Content — Hidden by default */}
+                  {showSuggestions && (
+                    <div className="mb-3 animate-rise flex flex-wrap gap-2">
+                      {SUGGESTIONS.map((s) => (
+                        <button
+                          key={s.label}
+                          onClick={() => send(s.label)}
+                          disabled={sending}
+                          className={`group flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${
+                            s.color === 'emerald'
+                              ? 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-400'
+                              : s.color === 'amber'
+                              ? 'border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-400'
+                              : s.color === 'rose'
+                              ? 'border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 hover:border-rose-400'
+                              : s.color === 'cyan'
+                              ? 'border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 hover:border-cyan-400'
+                              : 'border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 hover:border-orange-400'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-[11px] font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-lime-300">
+                              {s.label}
+                            </div>
+                            <div className="text-[9px] font-mono text-slate-500 dark:text-slate-400">
+                              {s.hint}
+                            </div>
+                          </div>
+                          <span className="chip border-white/20 bg-black/10 dark:bg-white/10 text-[9px] font-mono font-bold text-slate-800 dark:text-slate-200">
+                            {s.tag}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Document Scanner Drawer */}
                   {showAttachment && (
