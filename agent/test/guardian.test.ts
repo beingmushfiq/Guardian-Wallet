@@ -378,3 +378,94 @@ describe('planner fallback', () => {
     expect(turn.proposals[0].injectionHits.length).toBeGreaterThan(0);
   });
 });
+
+describe('security audit: defensive safeguards & balanced tagging', () => {
+  const baseCtx = {
+    vaultPaused: false,
+    tokenAllowlist: new Set(['0x30787a91176b6a3beac6e2d3121017efad383062']),
+    recipientAllowlist: new Set([TUITION.toLowerCase()]),
+    perTxCap: 50_000_000n, // 50 USDC
+    dailyCap: 150_000_000n,
+    spentToday: 0n,
+    recentAmounts: [],
+    recentBlocksInWindow: 0,
+    safetyModeUntil: 0,
+    now: 1_000_000,
+  };
+
+  const zeroRisk = { score: 0, flags: [], notes: [] };
+
+  it('blocks zero or negative amounts strictly', () => {
+    const pZero = {
+      intentId: '0x1' as `0x${string}`,
+      token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
+      to: TUITION,
+      amount: 0n,
+      tainted: false,
+      injectionHits: [],
+    };
+    const dZero = decide(pZero, baseCtx, zeroRisk);
+    expect(dZero.tier).toBe('BLOCK');
+    expect(dZero.reasons[0]).toMatch(/strictly greater than zero/i);
+
+    const pNeg = { ...pZero, amount: -100n };
+    const dNeg = decide(pNeg, baseCtx, zeroRisk);
+    expect(dNeg.tier).toBe('BLOCK');
+  });
+
+  it('blocks zero address recipient', () => {
+    const p = {
+      intentId: '0x2' as `0x${string}`,
+      token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
+      to: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      amount: 10_000_000n,
+      tainted: false,
+      injectionHits: [],
+    };
+    const d = decide(p, baseCtx, zeroRisk);
+    expect(d.tier).toBe('BLOCK');
+    expect(d.reasons[0]).toMatch(/zero address is not allowed/i);
+  });
+
+  it('enforces balanced tagging: micro-payments under 10% of cap to saved contacts auto-execute', () => {
+    // 4 USDC <= 50 USDC / 10 (5 USDC threshold)
+    const pMicro = {
+      intentId: '0x3' as `0x${string}`,
+      token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
+      to: TUITION,
+      amount: 4_000_000n,
+      tainted: true,
+      injectionHits: [],
+    };
+    const d = decide(pMicro, baseCtx, zeroRisk);
+    expect(d.tier).toBe('T2');
+  });
+
+  it('enforces balanced tagging: payments over 10% of cap from documents require approval (T3)', () => {
+    // 20 USDC > 5 USDC threshold (10% of 50 USDC cap)
+    const pLarge = {
+      intentId: '0x4' as `0x${string}`,
+      token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
+      to: TUITION,
+      amount: 20_000_000n,
+      tainted: true,
+      injectionHits: [],
+    };
+    const d = decide(pLarge, baseCtx, zeroRisk);
+    expect(d.tier).toBe('T3');
+    expect(d.reasons[0]).toMatch(/exceeds the safe micro-limit/i);
+  });
+
+  it('routes untrusted document with prompt injection hits to T1 manual review', () => {
+    const pInjected = {
+      intentId: '0x5' as `0x${string}`,
+      token: '0x30787a91176b6a3beac6e2d3121017efad383062' as `0x${string}`,
+      to: TUITION,
+      amount: 4_000_000n,
+      tainted: true,
+      injectionHits: ['override-policy'],
+    };
+    const d = decide(pInjected, baseCtx, zeroRisk);
+    expect(d.tier).toBe('T1');
+  });
+});

@@ -68,8 +68,11 @@ app.post('/api/chat', async (req, reply) => {
 
 app.get('/api/pending', async () => ({ pending: pendingApprovals() }));
 
+const HEX_32_RE = /^0x[0-9a-fA-F]{64}$/;
+
 app.get('/api/approval/:intentId', async (req, reply) => {
   const { intentId } = req.params as { intentId: string };
+  if (!HEX_32_RE.test(intentId)) return reply.code(400).send({ error: 'Invalid intentId format: must be 32-byte hex string' });
   try {
     return approvalPayload(venue, intentId);
   } catch (e) {
@@ -79,7 +82,9 @@ app.get('/api/approval/:intentId', async (req, reply) => {
 
 app.post('/api/approve/:intentId', async (req, reply) => {
   const { intentId } = req.params as { intentId: string };
+  if (!HEX_32_RE.test(intentId)) return reply.code(400).send({ error: 'Invalid intentId format: must be 32-byte hex string' });
   const { txHash } = (req.body ?? {}) as { txHash?: string };
+  if (txHash && !HEX_32_RE.test(txHash)) return reply.code(400).send({ error: 'Invalid txHash format: must be 32-byte hex string' });
   try {
     return await approvePending(venue, intentId, txHash);
   } catch (e) {
@@ -89,6 +94,7 @@ app.post('/api/approve/:intentId', async (req, reply) => {
 
 app.post('/api/reject/:intentId', async (req, reply) => {
   const { intentId } = req.params as { intentId: string };
+  if (!HEX_32_RE.test(intentId)) return reply.code(400).send({ error: 'Invalid intentId format: must be 32-byte hex string' });
   try {
     rejectPending(intentId);
     return { ok: true };

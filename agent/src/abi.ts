@@ -97,6 +97,17 @@ export const VAULT_ABI = [
       { name: 'amount', type: 'uint256', indexed: false },
     ],
   },
+  { type: 'error', name: 'ZeroAmount', inputs: [] },
+  { type: 'error', name: 'InvalidRecipient', inputs: [] },
+  { type: 'error', name: 'InvalidCap', inputs: [] },
+  { type: 'error', name: 'ZeroAddress', inputs: [] },
+  { type: 'error', name: 'OverPerTxCap', inputs: [] },
+  { type: 'error', name: 'OverDailyCap', inputs: [] },
+  { type: 'error', name: 'IntentReused', inputs: [] },
+  { type: 'error', name: 'NotAllowed', inputs: [] },
+  { type: 'error', name: 'IsPaused', inputs: [] },
+  { type: 'error', name: 'NotAgent', inputs: [] },
+  { type: 'error', name: 'NotOwnerOrAgent', inputs: [] },
 ] as const;
 
 export const ERC20_ABI = [

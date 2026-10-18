@@ -44,6 +44,9 @@ contract GuardianVault is Ownable, ReentrancyGuard {
     error OverDailyCap();
     error IntentReused();
     error ZeroAddress();
+    error ZeroAmount();
+    error InvalidRecipient();
+    error InvalidCap();
 
     modifier onlyAgent() {
         if (msg.sender != agent) revert NotAgent();
@@ -64,6 +67,9 @@ contract GuardianVault is Ownable, ReentrancyGuard {
         nonReentrant
     {
         if (paused) revert IsPaused();
+        if (amount == 0) revert ZeroAmount();
+        if (to == address(0) || to == address(this)) revert InvalidRecipient();
+        if (token == address(0)) revert ZeroAddress();
         if (!tokenOk[token] || !recipientOk[to]) revert NotAllowed();
         if (amount > perTxCap[token]) revert OverPerTxCap();
         if (intentUsed[intentId]) revert IntentReused();
@@ -95,12 +101,14 @@ contract GuardianVault is Ownable, ReentrancyGuard {
 
     function setRecipient(address who, bool allowed) external onlyOwner {
         if (who == address(0)) revert ZeroAddress();
+        if (who == address(this)) revert InvalidRecipient();
         recipientOk[who] = allowed;
         emit RecipientSet(who, allowed);
     }
 
     function setToken(address token, bool allowed, uint256 perTx, uint256 daily) external onlyOwner {
         if (token == address(0)) revert ZeroAddress();
+        if (perTx > daily) revert InvalidCap();
         tokenOk[token] = allowed;
         perTxCap[token] = perTx;
         dailyCap[token] = daily;
@@ -119,6 +127,9 @@ contract GuardianVault is Ownable, ReentrancyGuard {
         onlyOwner
         nonReentrant
     {
+        if (amount == 0) revert ZeroAmount();
+        if (to == address(0) || to == address(this)) revert InvalidRecipient();
+        if (token == address(0)) revert ZeroAddress();
         if (intentUsed[intentId]) revert IntentReused();
         intentUsed[intentId] = true;
         IERC20(token).safeTransfer(to, amount);

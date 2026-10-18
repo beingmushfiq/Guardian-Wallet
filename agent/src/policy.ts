@@ -15,6 +15,11 @@ export function decide(p: Proposal, ctx: PolicyContext, risk: RiskResult): Decis
     riskScore: risk.score,
   });
 
+  if (p.amount <= 0n) return out('BLOCK', 'Transfer amount must be strictly greater than zero.');
+  if (norm(p.to) === '0x0000000000000000000000000000000000000000') {
+    return out('BLOCK', 'Invalid recipient: zero address is not allowed.');
+  }
+
   if (ctx.vaultPaused) return out('BLOCK', 'Wallet is paused by the owner or the safety system.');
   if (!ctx.tokenAllowlist.has(norm(p.token))) return out('BLOCK', 'Token is not on the approved list.');
   if (risk.flags.includes('LOOKALIKE_ADDRESS')) {
@@ -33,6 +38,18 @@ export function decide(p: Proposal, ctx: PolicyContext, risk: RiskResult): Decis
   }
   if (risk.score >= 0.4) {
     return out('T3', `Moderate risk: ${risk.flags.join(', ')}. Approval required.`);
+  }
+
+  // Balanced Tagging: Allow auto-execution only if the recipient is already in saved contacts and amount is under 10% of perTxCap.
+  if (p.tainted) {
+    const isSavedContact = ctx.recipientAllowlist.has(norm(p.to));
+    const isUnderTenthCap = p.amount <= ctx.perTxCap / 10n;
+    if (!isSavedContact || !isUnderTenthCap) {
+      return out(
+        'T3',
+        'Document instructions require explicit owner confirmation because amount exceeds the safe micro-limit (10% of per-tx cap).',
+      );
+    }
   }
 
   return out('T2', 'Within your limits to a trusted recipient. Executed automatically.');

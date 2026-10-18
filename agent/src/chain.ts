@@ -47,6 +47,8 @@ export class SimulatedVenue implements Venue {
   }
 
   async simulate(p: Proposal): Promise<SimulationResult> {
+    if (p.amount <= 0n) return { ok: false, error: 'ZeroAmount: amount must be greater than zero' };
+    if (p.to.toLowerCase() === ZERO.toLowerCase()) return { ok: false, error: 'InvalidRecipient: zero address' };
     const state = await this.readState();
     if (state.paused) return { ok: false, error: 'IsPaused: wallet is paused' };
     if (!state.tokenAllowlist.has(p.token.toLowerCase())) return { ok: false, error: 'NotAllowed: token' };
@@ -96,6 +98,8 @@ export class SimulatedVenue implements Venue {
   }
 
   async simulatedOwnerTransfer(p: Proposal): Promise<ExecutionResult> {
+    if (p.amount <= 0n) throw new Error('ZeroAmount: amount must be greater than zero');
+    if (p.to.toLowerCase() === ZERO.toLowerCase()) throw new Error('InvalidRecipient: zero address');
     const l = readSimLedger(this.initialBalance);
     if (l.balance < p.amount) throw new Error('ERC20InsufficientBalance');
     l.balance -= p.amount;
@@ -219,8 +223,10 @@ export class LiveVenue implements Venue {
       const receipt = await this.publicClient.getTransactionReceipt({ hash: txHash as Hex });
       if (receipt.status !== 'success') return { ok: false, error: 'Transaction reverted on-chain.' };
       const logs = parseEventLogs({ abi: VAULT_ABI, eventName: 'OwnerTransfer', logs: receipt.logs });
-      const match = logs.find((l) => l.args.intentId === intentId);
-      if (!match) return { ok: false, error: 'No OwnerTransfer event for this intent in the transaction.' };
+      const match = logs.find(
+        (l) => l.args.intentId === intentId && l.address.toLowerCase() === this.vault.toLowerCase(),
+      );
+      if (!match) return { ok: false, error: 'No verified OwnerTransfer event from the vault for this intent in the transaction.' };
       if (receipt.from.toLowerCase() !== config.ownerAddress.toLowerCase()) {
         return { ok: false, error: 'Transaction was not sent by the configured owner address.' };
       }

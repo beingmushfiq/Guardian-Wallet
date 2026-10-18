@@ -227,10 +227,46 @@ contract GuardianVaultTest is Test {
     }
 
     function testFuzz_transferWithinCapSucceeds(uint256 amt) public {
-        amt = bound(amt, 0, PER_TX);
+        amt = bound(amt, 1, PER_TX);
         vm.prank(agent);
         vault.transferToken(keccak256(abi.encode(amt)), address(usdc), tuition, amt);
         assertEq(usdc.balanceOf(tuition), amt);
+    }
+
+    function test_revert_zeroAmount() public {
+        vm.prank(agent);
+        vm.expectRevert(GuardianVault.ZeroAmount.selector);
+        vault.transferToken(keccak256("zero"), address(usdc), tuition, 0);
+    }
+
+    function test_revert_invalidRecipient_zeroAddress() public {
+        vm.prank(agent);
+        vm.expectRevert(GuardianVault.InvalidRecipient.selector);
+        vault.transferToken(keccak256("zeroTo"), address(usdc), address(0), 10e6);
+    }
+
+    function test_revert_invalidRecipient_self() public {
+        vm.prank(agent);
+        vm.expectRevert(GuardianVault.InvalidRecipient.selector);
+        vault.transferToken(keccak256("selfTo"), address(usdc), address(vault), 10e6);
+    }
+
+    function test_revert_invalidCap_perTxOverDaily() public {
+        vm.prank(owner);
+        vm.expectRevert(GuardianVault.InvalidCap.selector);
+        vault.setToken(address(usdc), true, 200e6, 100e6); // perTx 200 > daily 100
+    }
+
+    function test_revert_ownerTransfer_zeroAmount() public {
+        vm.prank(owner);
+        vm.expectRevert(GuardianVault.ZeroAmount.selector);
+        vault.ownerTransfer(keccak256("ownerZero"), address(usdc), stranger, 0);
+    }
+
+    function test_revert_ownerTransfer_self() public {
+        vm.prank(owner);
+        vm.expectRevert(GuardianVault.InvalidRecipient.selector);
+        vault.ownerTransfer(keccak256("ownerSelf"), address(usdc), address(vault), 50e6);
     }
 
     function testFuzz_dailyCapNeverExceeded(uint256 a, uint256 b) public {
