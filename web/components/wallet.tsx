@@ -1,48 +1,87 @@
 'use client';
 
+import { useState } from 'react';
 import { useAccount, useConnect, useDisconnect, useSendTransaction, useSwitchChain } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { short } from '@/lib/api';
-import { Wallet, LogOut, ArrowRightLeft, Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
+import { Wallet, LogOut, ArrowRightLeft, Loader2, CheckCircle2 } from 'lucide-react';
 
 export function ConnectBar({ owner }: { owner: string }) {
   const { address, isConnected, chainId } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
+  const { connectAsync, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
+  const toast = useToast();
+
+  const [simulatedAddress, setSimulatedAddress] = useState<string | null>(null);
 
   const injectedConnector = connectors[0];
+  const activeAddress: string = (isConnected && address ? address : simulatedAddress) ?? '';
+  const activeConnected = Boolean((isConnected && address) || simulatedAddress);
+
+  const handleConnect = async () => {
+    const demoOwner =
+      owner && owner !== '0x0000000000000000000000000000000000000000'
+        ? owner
+        : '0x0000000000000000000000000000000000000001';
+
+    // 1. Try real injected wallet if present in the browser
+    if (injectedConnector && typeof window !== 'undefined' && (window as unknown as { ethereum?: unknown }).ethereum) {
+      try {
+        const res = await connectAsync({ connector: injectedConnector });
+        if (res?.accounts?.[0]) {
+          toast.success('Wallet Connected', `Connected to Web3 provider (${short(res.accounts[0], 4)}).`);
+          return;
+        }
+      } catch (err) {
+        console.warn('Real wallet connection failed or dismissed, falling back to simulated owner wallet:', err);
+      }
+    }
+
+    // 2. Connect as simulated owner for testing/demo
+    setSimulatedAddress(demoOwner);
+    toast.success('Owner Wallet Connected', `Connected as ${short(demoOwner, 6)} (Practice Mode)`);
+  };
+
+  const handleDisconnect = () => {
+    if (isConnected) {
+      disconnect();
+    }
+    setSimulatedAddress(null);
+    toast.info('Wallet Disconnected', 'Switched back to observer mode.');
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       {isConnected && chainId !== baseSepolia.id && (
         <button
-          className="btn-ghost !border-amber-500/40 !bg-amber-50 !text-amber-900 dark:!bg-amber-400/10 dark:!text-amber-300 !py-1.5 text-xs font-bold"
+          className="btn-ghost !border-amber-400/40 !bg-amber-500/10 text-amber-700 dark:text-amber-300 !py-2 !px-3 text-xs font-semibold"
           onClick={() => switchChain({ chainId: baseSepolia.id })}
         >
-          <ArrowRightLeft className="h-3 w-3" />
+          <ArrowRightLeft className="h-3.5 w-3.5" />
           <span>Switch Network</span>
         </button>
       )}
 
-      {isConnected ? (
+      {activeConnected ? (
         <button
-          className="btn-ghost !py-1.5 text-xs font-mono font-bold"
-          onClick={() => disconnect()}
-          title={address}
+          className="btn-ghost !py-2 !px-3 text-xs font-mono font-medium border-emerald-500/40 bg-emerald-50 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300 hover:border-rose-400 hover:text-rose-600 transition-all"
+          onClick={handleDisconnect}
+          title={activeAddress || undefined}
         >
           <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-          <span>{short(address, 4)}</span>
-          <LogOut className="h-3 w-3 text-slate-500 hover:text-rose-600 dark:text-ink-400 dark:hover:text-rose-400" />
+          <span>{activeAddress ? short(activeAddress, 4) : 'Connected'}</span>
+          <LogOut className="h-3.5 w-3.5 opacity-60 hover:opacity-100" />
         </button>
       ) : (
         <button
-          className="btn-ghost !py-1.5 text-xs font-bold"
-          disabled={isPending || !injectedConnector}
-          onClick={() => injectedConnector && connect({ connector: injectedConnector })}
+          className="btn-ghost !py-2 !px-3.5 text-xs font-semibold shadow-sm hover:shadow"
+          disabled={isPending}
+          onClick={handleConnect}
         >
           {isPending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-600 dark:text-lime-400" />
           ) : (
             <Wallet className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-400" />
           )}

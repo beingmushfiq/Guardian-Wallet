@@ -24,8 +24,6 @@ import {
   Sparkles,
   AlertOctagon,
   Terminal,
-  Shield,
-  Layers,
 } from 'lucide-react';
 
 interface Message {
@@ -106,12 +104,12 @@ export default function Page() {
       gsap.fromTo(
         '.gsap-header',
         { opacity: 0, y: -20 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }
       );
       gsap.fromTo(
         '.gsap-bento-tile',
-        { opacity: 0, y: 25 },
-        { opacity: 1, y: 0, duration: 0.75, stagger: 0.08, ease: 'power3.out' }
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.65, stagger: 0.06, ease: 'power3.out' }
       );
     }, mainContainerRef);
 
@@ -176,9 +174,9 @@ export default function Page() {
 
   return (
     <div ref={mainContainerRef} className="relative min-h-screen font-sans">
-      <main className="mx-auto flex min-h-screen max-w-[1600px] flex-col px-3 py-3 sm:px-6 sm:py-5 lg:h-screen lg:px-8 lg:py-5">
+      <main className="mx-auto flex min-h-screen max-w-[1600px] flex-col px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
         {/* Floating Header HUD */}
-        <header className="gsap-header mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white/80 p-3 shadow-sm backdrop-blur-2xl dark:border-white/[0.08] dark:bg-ink-900/60 dark:shadow-panel">
+        <header className="gsap-header mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white/85 p-3.5 shadow-sm backdrop-blur-2xl dark:border-white/[0.08] dark:bg-ink-900/60 dark:shadow-panel">
           <div className="flex items-center gap-3.5">
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-50 shadow-sm dark:border-lime-400/40 dark:bg-gradient-to-br dark:from-lime-400/20 dark:to-emerald-500/10 dark:shadow-[0_0_20px_rgba(201,242,107,0.3)]">
               <img src="/logo.svg" alt="Guardian Wallet Logo" className="h-6 w-6" />
@@ -218,7 +216,7 @@ export default function Page() {
               </span>
             )}
 
-            <span className="chip border-slate-200 bg-slate-100 font-mono text-[10px] text-slate-700 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-ink-300 font-medium">
+            <span className="chip border-slate-200/80 bg-slate-100/80 font-mono text-[10px] text-slate-700 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-ink-300 font-semibold">
               <Sparkles className="h-3 w-3 text-emerald-600 dark:text-lime-400" />
               {state?.planner === 'llm' ? 'Smart AI Planner' : 'Safety Rules: On'}
             </span>
@@ -226,7 +224,7 @@ export default function Page() {
             {/* Theme Toggler Button */}
             <button
               onClick={handleToggleTheme}
-              className="btn-ghost !py-1.5 !px-2.5 text-xs font-bold"
+              className="btn-ghost !py-2 !px-3 text-xs font-bold"
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {theme === 'dark' ? (
@@ -243,7 +241,7 @@ export default function Page() {
             </button>
 
             <button
-              className="btn-ghost !py-1.5 text-xs font-bold"
+              className="btn-ghost !py-2 !px-3 text-xs font-bold"
               onClick={resetDemo}
               title="Reset practice ledger"
             >
@@ -268,7 +266,7 @@ export default function Page() {
 
         {/* Skeleton Initial State or Main Content */}
         {loadingInitial ? (
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(340px,0.9fr)] lg:gap-5">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(340px,0.9fr)]">
             <SkeletonTerminal />
             <div className="space-y-4">
               <SkeletonCard />
@@ -276,10 +274,10 @@ export default function Page() {
             </div>
           </div>
         ) : (
-          /* Main Bento Grid */
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(340px,0.9fr)] lg:gap-5">
+          /* Main Bento Grid — Fully scrollable naturally without height lock */
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(340px,0.9fr)]">
             {/* Column 1: Conversational Assistant Terminal */}
-            <SpatialCard className="gsap-bento-tile flex min-h-[500px] flex-col lg:min-h-0">
+            <SpatialCard className="gsap-bento-tile flex min-h-[440px] lg:min-h-[640px] flex-col">
               {/* Terminal Header */}
               <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/50 px-4 py-3 dark:border-white/[0.06] dark:bg-ink-900/40 backdrop-blur-md">
                 <div className="flex items-center gap-2.5">
@@ -301,7 +299,7 @@ export default function Page() {
               </div>
 
               {/* Conversation Log Stream */}
-              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
+              <div className="flex-1 space-y-4 overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5 max-h-[460px] lg:max-h-[580px]">
                 {messages.map((m) => (
                   <div key={m.id} className="animate-rise">
                     {m.role === 'user' ? (
@@ -368,7 +366,7 @@ export default function Page() {
                       key={s.label}
                       onClick={() => send(s.label)}
                       disabled={sending}
-                      className="group flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left shadow-sm transition-all hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:border-white/[0.08] dark:bg-white/[0.02] dark:hover:border-lime-400/40 dark:hover:bg-lime-400/[0.06] disabled:opacity-40"
+                      className="group flex shrink-0 items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-left shadow-sm transition-all hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:border-white/[0.08] dark:bg-white/[0.02] dark:hover:border-lime-400/40 dark:hover:bg-lime-400/[0.06] disabled:opacity-40"
                     >
                       <div>
                         <div className="text-[11px] font-bold text-slate-800 dark:text-ink-200 group-hover:text-emerald-700 dark:group-hover:text-white">
@@ -421,39 +419,37 @@ export default function Page() {
                   </div>
                 )}
 
-                {/* Main Prompt Input Bar */}
+                {/* Main Prompt Input Bar — Harmoniously styled */}
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     send();
                   }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-2xl border border-slate-300/80 bg-white/95 p-1.5 shadow-sm backdrop-blur-xl transition-all focus-within:border-emerald-500/60 focus-within:ring-2 focus-within:ring-emerald-500/20 dark:border-white/[0.1] dark:bg-ink-950/80 dark:focus-within:border-lime-400/50 dark:focus-within:ring-lime-400/20"
                 >
                   <button
                     type="button"
                     onClick={() => setShowAttachment((v) => !v)}
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all ${
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all ${
                       showAttachment
-                        ? 'border-amber-500 bg-amber-100 text-amber-900 dark:border-amber-400/50 dark:bg-amber-400/15 dark:text-amber-300 shadow-sm'
-                        : 'border-slate-300 bg-white text-slate-600 hover:border-slate-400 dark:border-white/[0.08] dark:bg-white/[0.02] dark:text-ink-400 dark:hover:border-white/20 dark:hover:text-white'
+                        ? 'bg-amber-100 text-amber-900 dark:bg-amber-400/20 dark:text-amber-300'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-ink-400 dark:hover:bg-white/[0.06] dark:hover:text-white'
                     }`}
                     title="Attach an invoice or bill"
                   >
                     <Paperclip className="h-4 w-4" />
                   </button>
 
-                  <div className="relative flex-1">
-                    <input
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Pay tuition 40 USDC · Send 10 USDC to 0x… · What is my balance?"
-                      className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-xs sm:text-[13px] text-slate-900 placeholder:text-slate-500 shadow-sm transition-all focus:border-emerald-500 focus:outline-none dark:border-white/[0.09] dark:bg-ink-950/70 dark:text-ink-100 dark:placeholder:text-ink-500 dark:focus:border-lime-400/50"
-                    />
-                  </div>
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Pay tuition 40 USDC · Send 10 USDC to 0x… · What is my balance?"
+                    className="h-9 min-w-0 flex-1 bg-transparent px-2 text-xs sm:text-[13px] font-medium text-slate-900 placeholder:text-slate-500 focus:outline-none dark:text-ink-100 dark:placeholder:text-ink-500"
+                  />
 
                   <button
                     type="submit"
-                    className="btn-primary h-11 w-11 shrink-0 !px-0"
+                    className="btn-primary h-9 w-9 shrink-0 !p-0 rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
                     disabled={sending || !input.trim()}
                     title="Send to Guardian Assistant"
                   >
@@ -463,8 +459,8 @@ export default function Page() {
               </div>
             </SpatialCard>
 
-            {/* Column 2: Bento Grid Protection & Activity */}
-            <div className="gsap-bento-tile flex flex-col gap-4 overflow-y-auto pr-1">
+            {/* Column 2: Bento Grid Protection & Activity — Naturally scrollable */}
+            <div className="gsap-bento-tile flex flex-col gap-4">
               <PolicyPanel
                 state={state}
                 refresh={refresh}
@@ -478,7 +474,7 @@ export default function Page() {
         )}
 
         {/* Status Bar Footer */}
-        <footer className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 dark:border-white/[0.06] pt-2 text-[10px] text-slate-600 dark:text-ink-400 font-medium">
+        <footer className="mt-6 mb-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 dark:border-white/[0.06] pt-3 text-[10px] text-slate-600 dark:text-ink-400 font-medium">
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-lime-400" />
             <span>Strict spending limits are permanently enforced. The AI cannot spend without your rules.</span>

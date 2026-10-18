@@ -13,14 +13,17 @@ html.dark {
   color-scheme: dark;
 }
 
-html,
-body {
-  height: 100%;
-  transition: background-color 300ms ease, color 300ms ease;
+html {
+  scroll-behavior: smooth;
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-/* Dark Mode Background */
 body {
+  min-height: 100%;
+  transition: background-color 300ms ease, color 300ms ease;
+  overflow-x: hidden;
   background-color: #05070a;
   background-image:
     radial-gradient(1200px 700px at 15% -5%, rgba(201, 242, 107, 0.08), transparent 60%),
@@ -28,7 +31,6 @@ body {
     radial-gradient(900px 800px at 50% 100%, rgba(16, 185, 129, 0.04), transparent 60%);
   background-attachment: fixed;
   color: #f1f5f9;
-  overflow-x: hidden;
 }
 
 /* Light Mode Background */
@@ -41,7 +43,7 @@ html.light body {
   color: #0f172a;
 }
 
-/* Subtle grid texture in background */
+/* Subtle background grid texture */
 body::before {
   content: '';
   position: fixed;
@@ -71,13 +73,13 @@ html.light ::selection {
   color: #064e3b;
 }
 
-/* Thin, sleek cyber scrollbars */
+/* Clean, modern scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 html.light * {
-  scrollbar-color: rgba(15, 23, 42, 0.2) transparent;
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -88,7 +90,7 @@ html.light * {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
 }
 html.light *::-webkit-scrollbar-thumb {
@@ -120,7 +122,7 @@ html.light *::-webkit-scrollbar-thumb:hover {
   }
 
   html.light .panel {
-    @apply border-slate-200/90 bg-white/85 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.08)] backdrop-blur-2xl text-slate-900;
+    @apply border-slate-200/90 bg-white/85 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.06)] backdrop-blur-2xl text-slate-900;
   }
 
   .label {
@@ -135,36 +137,36 @@ html.light *::-webkit-scrollbar-thumb:hover {
     @apply text-slate-600;
   }
 
-  /* Tactile Interactive Buttons */
-  .btn {
-    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-400/60 disabled:cursor-not-allowed disabled:opacity-40;
+  /* Tactile Interactive Buttons — Self-contained with rounded-xl, flex centering and transitions */
+  .btn, .btn-ghost, .btn-primary, .btn-danger {
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   /* Primary Button */
   html.dark .btn-primary {
-    @apply border border-lime-400/40 bg-gradient-to-b from-lime-300 to-lime-500 text-ink-950 font-bold shadow-[0_0_24px_rgba(201,242,107,0.35)] hover:from-lime-200 hover:to-lime-400;
+    @apply border border-lime-400/40 bg-gradient-to-b from-lime-300 to-lime-500 text-ink-950 font-bold shadow-[0_0_24px_rgba(201,242,107,0.35)] hover:from-lime-200 hover:to-lime-400 hover:shadow-[0_0_30px_rgba(201,242,107,0.5)];
   }
 
   html.light .btn-primary {
-    @apply border border-emerald-600/30 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white font-bold shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:from-emerald-500 hover:to-emerald-600;
+    @apply border border-emerald-600/30 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white font-bold shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:from-emerald-500 hover:to-emerald-600 hover:shadow-[0_6px_20px_rgba(5,150,105,0.35)];
   }
 
   /* Ghost Button */
   html.dark .btn-ghost {
-    @apply border border-white/[0.1] bg-white/[0.03] text-ink-200 backdrop-blur-md hover:border-white/[0.22] hover:bg-white/[0.07] hover:text-white;
+    @apply border border-white/[0.1] bg-white/[0.04] text-ink-200 backdrop-blur-md shadow-sm hover:border-white/[0.22] hover:bg-white/[0.08] hover:text-white hover:shadow;
   }
 
   html.light .btn-ghost {
-    @apply border border-slate-300 bg-white text-slate-800 shadow-sm backdrop-blur-md hover:border-slate-400 hover:bg-slate-100 hover:text-slate-950;
+    @apply border border-slate-300/80 bg-white/90 text-slate-700 shadow-sm backdrop-blur-md hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950 hover:shadow;
   }
 
   /* Danger Button */
   html.dark .btn-danger {
-    @apply border border-rose-500/40 bg-gradient-to-b from-rose-500/20 to-rose-600/30 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.2)] hover:border-rose-400/60 hover:from-rose-500/30 hover:to-rose-600/40 hover:text-white;
+    @apply border border-rose-500/40 bg-gradient-to-r from-rose-500/15 via-rose-500/10 to-rose-500/15 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.15)] hover:border-rose-400/60 hover:bg-rose-500/25 hover:text-white hover:shadow-[0_0_25px_rgba(244,63,94,0.3)];
   }
 
   html.light .btn-danger {
-    @apply border border-rose-300 bg-rose-50 text-rose-700 font-bold shadow-sm hover:border-rose-400 hover:bg-rose-100 hover:text-rose-900;
+    @apply border border-rose-300/90 bg-gradient-to-r from-rose-50 via-rose-100/60 to-rose-50 text-rose-800 font-bold shadow-sm hover:border-rose-400 hover:bg-rose-100 hover:text-rose-950 hover:shadow;
   }
 
   .chip {

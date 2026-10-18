@@ -6,7 +6,7 @@ import type { AgentState } from '@/lib/types';
 import { VaultScene3D } from '@/components/three/vault-scene-3d';
 import { SpatialCard } from '@/components/spatial-card';
 import { useToast } from '@/components/ui/toast';
-import { Lock, ShieldAlert, ExternalLink, Loader2, ShieldCheck } from 'lucide-react';
+import { Lock, ShieldAlert, ExternalLink, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
 
 export function VaultCoreCard({
   state,
@@ -74,7 +74,7 @@ export function VaultCoreCard({
         {/* Header Ribbon */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="label font-bold text-slate-800 dark:text-ink-300">Protected Vault</span>
+            <span className="label font-bold text-slate-800 dark:text-ink-200">Protected Vault</span>
             <span
               className={`h-2.5 w-2.5 rounded-full ${
                 isPaused
@@ -97,11 +97,12 @@ export function VaultCoreCard({
           </span>
         </div>
 
-        {/* 3D Interactive Three.js Vault Polyhedron */}
-        <div className="relative my-2 h-44 w-full">
+        {/* 3D Interactive Three.js Gyroscopic Vault Core */}
+        <div className="relative my-3 h-52 w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-b from-slate-100/60 via-emerald-50/20 to-slate-100/30 p-2 dark:border-white/[0.06] dark:from-white/[0.04] dark:via-lime-400/[0.02] dark:to-transparent shadow-inner">
           <VaultScene3D status={visualStatus} className="h-full w-full" />
-          <div className="pointer-events-none absolute bottom-1 right-2 text-[9px] font-mono text-slate-500 dark:text-ink-500">
-            Vault Core 3D
+          <div className="pointer-events-none absolute bottom-2.5 right-3 flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/80 px-2 py-0.5 text-[9px] font-mono text-slate-600 dark:border-white/10 dark:bg-black/50 dark:text-ink-300 backdrop-blur-md">
+            <Sparkles className="h-3 w-3 text-emerald-600 dark:text-lime-400" />
+            <span>Interactive 3D Core · Tap to Engage</span>
           </div>
         </div>
 
@@ -137,28 +138,29 @@ export function VaultCoreCard({
             )}
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
               <ShieldCheck className="h-3 w-3" />
-              Guaranteed
+              Protected
             </span>
           </div>
         </div>
 
         {/* Emergency Pause Controls */}
-        <div className="mt-4">
+        <div className="mt-3.5">
           {isPaused ? (
-            <div className="rounded-xl border border-rose-400/60 bg-rose-50 p-3.5 dark:border-rose-500/40 dark:bg-rose-500/10">
+            <div className="rounded-xl border border-rose-300 bg-rose-50 p-3.5 dark:border-rose-500/40 dark:bg-rose-500/10">
               <div className="flex items-center gap-2 text-xs font-bold text-rose-800 dark:text-rose-300">
                 <Lock className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                 <span>VAULT TEMPORARILY FROZEN</span>
               </div>
-              <p className="mt-1.5 text-[11px] leading-relaxed text-rose-900/80 dark:text-rose-200/80 font-medium">
+              <p className="mt-1 text-[11px] leading-relaxed text-rose-900/80 dark:text-rose-200/80 font-medium">
                 All outgoing payments are frozen. Connect your owner wallet above whenever you want to unfreeze.
               </p>
             </div>
           ) : (
             <button
-              className="btn-danger w-full py-2.5 text-xs font-bold"
+              className="btn-danger w-full !py-2.5 !px-4 text-xs font-bold tracking-wider uppercase shadow-sm"
               onClick={pause}
               disabled={pausing}
+              title="Immediately freeze all outgoing transactions in case of emergency"
             >
               {pausing ? (
                 <>
@@ -167,8 +169,8 @@ export function VaultCoreCard({
                 </>
               ) : (
                 <>
-                  <ShieldAlert className="h-4 w-4" />
-                  <span>FREEZE ALL PAYMENTS (EMERGENCY)</span>
+                  <ShieldAlert className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                  <span>Freeze All Payments (Emergency)</span>
                 </>
               )}
             </button>
