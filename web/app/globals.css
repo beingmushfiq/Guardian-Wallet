@@ -27,10 +27,6 @@ html.lenis, html.lenis body {
   scroll-behavior: auto !important;
 }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
 body {
   min-height: 100%;
   max-width: 100vw;

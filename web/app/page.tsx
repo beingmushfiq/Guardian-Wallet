@@ -90,7 +90,7 @@ export default function Page() {
     if (tab === 'rules' && activeTab === 'activity') setActiveTab('rules');
   }, [activeTab]);
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const chatStreamRef = useRef<HTMLDivElement>(null);
   const mainContainerRef = useRef<HTMLDivElement>(null);
 
   const refresh = useCallback(async () => {
@@ -113,8 +113,14 @@ export default function Page() {
     return () => clearInterval(t);
   }, [refresh]);
 
+  // Keep chat smoothly scrolled to bottom without hijacking or locking page window scroll
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (chatStreamRef.current) {
+      chatStreamRef.current.scrollTo({
+        top: chatStreamRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages, sending]);
 
   // GSAP entrance choreographies
@@ -428,7 +434,7 @@ export default function Page() {
                 </div>
 
                 {/* Conversation Log Stream */}
-                <div data-lenis-prevent className="flex-1 space-y-4 overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5 max-h-[460px] lg:max-h-[580px]">
+                <div ref={chatStreamRef} className="flex-1 space-y-4 overflow-y-auto overscroll-y-auto px-4 py-4 sm:px-5 sm:py-5 max-h-[460px] lg:max-h-[580px]">
                   {messages.map((m) => (
                     <div key={m.id} className="animate-rise">
                       {m.role === 'user' ? (
@@ -595,7 +601,6 @@ export default function Page() {
                   {sending && (
                     <BeautifulLoader label="Validating intent against your on-chain rules…" size="sm" />
                   )}
-                  <div ref={bottomRef} />
                 </div>
 
                 {/* Bottom Controls & Prompt Input */}
