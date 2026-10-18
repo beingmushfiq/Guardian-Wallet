@@ -437,13 +437,13 @@ export default function Page() {
                 </div>
 
                 {/* Conversation Log Stream */}
-                <div ref={chatStreamRef} className="flex-1 space-y-4 overflow-y-auto overscroll-y-auto px-4 py-4 sm:px-5 sm:py-5 max-h-[460px] lg:max-h-[580px]">
+                <div ref={chatStreamRef} className="flex-1 space-y-4 overflow-y-auto overflow-x-hidden overscroll-y-auto px-3.5 py-4 sm:px-5 sm:py-5 max-h-[460px] lg:max-h-[580px] w-full min-w-0">
                   {messages.map((m) => (
-                    <div key={m.id} className="animate-rise">
+                    <div key={m.id} className="animate-rise w-full min-w-0">
                       {m.role === 'user' ? (
-                        <div className="flex justify-end">
-                          <div className="flex items-start gap-2 max-w-[85%] sm:max-w-[75%]">
-                            <div className="rounded-2xl rounded-tr-sm border border-slate-200 bg-slate-100/90 dark:border-white/[0.12] dark:bg-gradient-to-br dark:from-white/[0.08] dark:to-white/[0.03] px-4 py-2.5 text-xs sm:text-[13px] leading-relaxed text-slate-900 dark:text-white shadow-sm backdrop-blur-md font-medium">
+                        <div className="flex justify-end w-full min-w-0">
+                          <div className="flex items-start gap-2 max-w-[85%] sm:max-w-[75%] min-w-0">
+                            <div className="rounded-2xl rounded-tr-sm border border-slate-200 bg-slate-100/90 dark:border-white/[0.12] dark:bg-gradient-to-br dark:from-white/[0.08] dark:to-white/[0.03] px-4 py-2.5 text-xs sm:text-[13px] leading-relaxed text-slate-900 dark:text-white shadow-sm backdrop-blur-md font-medium break-words">
                               {m.text}
                             </div>
                             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-300">
@@ -452,7 +452,7 @@ export default function Page() {
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-start gap-3 max-w-[95%] sm:max-w-[90%]">
+                        <div className="flex items-start gap-2.5 sm:gap-3 w-full min-w-0">
                           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:border-lime-400/40 dark:bg-lime-400/10 dark:text-lime-400">
                             <Bot className="h-3.5 w-3.5" />
                           </div>
@@ -463,19 +463,19 @@ export default function Page() {
                                 Guardian
                               </span>
                               {m.planner === 'fallback' && (
-                                <span className="chip border-slate-200 bg-slate-100 text-[9px] font-mono text-slate-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-400">
+                                <span className="chip border-slate-200 bg-slate-100 text-[9px] font-mono text-slate-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-400 shrink-0">
                                   preset rules
                                 </span>
                               )}
                             </div>
 
-                            <div className="rounded-2xl rounded-tl-sm border border-slate-200/90 bg-white/95 px-4 py-3 text-xs sm:text-[13px] leading-relaxed text-slate-800 shadow-sm backdrop-blur-md dark:border-white/[0.08] dark:bg-slate-900/80 dark:text-slate-200 font-medium">
+                            <div className="rounded-2xl rounded-tl-sm border border-slate-200/90 bg-white/95 px-4 py-3 text-xs sm:text-[13px] leading-relaxed text-slate-800 shadow-sm backdrop-blur-md dark:border-white/[0.08] dark:bg-slate-900/80 dark:text-slate-200 font-medium break-words">
                               {m.text}
                             </div>
 
                             {/* Proposal Result Cards */}
                             {m.rows && m.rows.length > 0 && (
-                              <div className="mt-3 space-y-3">
+                              <div className="mt-3 space-y-3 w-full min-w-0">
                                 {m.rows.map((r) => (
                                   <ResultCard key={r.intentId} row={r} onDone={refresh} />
                                 ))}

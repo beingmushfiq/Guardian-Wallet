@@ -78,16 +78,16 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border bg-white/95 dark:bg-slate-900/90 p-4.5 shadow-sm backdrop-blur-xl transition-all duration-300 ${borderClass}`}
+      className={`relative w-full min-w-0 overflow-hidden rounded-2xl border bg-white/95 dark:bg-slate-900/90 p-3.5 sm:p-4.5 shadow-sm backdrop-blur-xl transition-all duration-300 ${borderClass}`}
     >
       {/* Top Accent Rim */}
       <div className={`absolute inset-x-0 top-0 h-1.5 ${style.dot} opacity-90`} />
 
-      <div className="space-y-3.5">
+      <div className="space-y-3.5 min-w-0 w-full overflow-hidden">
         {/* Tier Header and Mode */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <TierChip tier={row.tier} />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <span className="font-mono text-[10px] font-medium text-slate-500 dark:text-slate-400">
               {row.mode === 'live' ? 'Live Vault' : 'Practice Mode'}
             </span>
@@ -100,16 +100,16 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
         </div>
 
         {/* Amount & Destination */}
-        <div className="flex flex-wrap items-end justify-between gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 dark:border-white/[0.06] dark:bg-slate-950/60 p-3">
-          <div>
+        <div className="flex flex-wrap items-end justify-between gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 dark:border-white/[0.06] dark:bg-slate-950/60 p-3 min-w-0">
+          <div className="min-w-0">
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <span className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {row.amountHuman}
               </span>
               <span className="text-sm font-bold text-emerald-600 dark:text-lime-400">{row.tokenSymbol}</span>
             </div>
-            <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
-              <span className="font-semibold text-slate-900 dark:text-slate-100">
+            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 min-w-0">
+              <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">
                 {row.contactName ? `To ${row.contactName}` : 'To new recipient'}
               </span>
               <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">({short(row.to, 5)})</span>
@@ -118,7 +118,7 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
 
           {/* Safety Evaluation Score */}
           {row.riskScore > 0 && (
-            <div className="flex flex-col items-end">
+            <div className="flex flex-col items-end shrink-0">
               <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-600 dark:text-slate-400">
                 <span>RISK</span>
                 <span className="font-bold text-slate-900 dark:text-white">{riskPct}%</span>
@@ -136,20 +136,20 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
         </div>
 
         {/* Security Rule Check Box */}
-        <div className="rounded-xl border border-slate-200/80 bg-slate-100/70 dark:border-white/[0.06] dark:bg-black/35 p-3">
+        <div className="rounded-xl border border-slate-200/80 bg-slate-100/70 dark:border-white/[0.06] dark:bg-black/35 p-3 min-w-0 overflow-hidden">
           <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400">
-            <ShieldCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+            <ShieldCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
             Security Rule Check
           </div>
-          <p className="mt-1.5 text-xs font-semibold leading-relaxed text-slate-900 dark:text-slate-100">
+          <p className="mt-1.5 text-xs font-semibold leading-relaxed text-slate-900 dark:text-slate-100 break-words">
             {row.reasons[0]}
           </p>
           {row.reasons.length > 1 && (
             <ul className="mt-2 space-y-1 border-t border-slate-200/60 dark:border-white/[0.04] pt-2">
               {row.reasons.slice(1).map((r, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-                  <span className="text-emerald-600 dark:text-lime-400 font-bold">›</span>
-                  <span>{r}</span>
+                <li key={i} className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-slate-300 break-words">
+                  <span className="text-emerald-600 dark:text-lime-400 font-bold shrink-0">›</span>
+                  <span className="break-words">{r}</span>
                 </li>
               ))}
             </ul>
@@ -157,7 +157,7 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
         </div>
 
         {/* Security Tags */}
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
           {row.flags.map((f) => (
             <span
               key={f}
@@ -170,71 +170,71 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
 
         {/* User Request Reason */}
         {row.reason && (
-          <p className="border-l-2 border-slate-300 dark:border-white/20 pl-2.5 text-xs italic leading-relaxed text-slate-600 dark:text-slate-400">
+          <p className="border-l-2 border-slate-300 dark:border-white/20 pl-2.5 text-xs italic leading-relaxed text-slate-600 dark:text-slate-400 break-words">
             “{row.reason}”
           </p>
         )}
 
         {/* Explicit Status Banners & Actions */}
         {status === 'executed' ? (
-          <div className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-3 text-emerald-800 dark:text-emerald-300 shadow-sm animate-rise">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-slate-950 font-bold">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-3 text-emerald-800 dark:text-emerald-300 shadow-sm animate-rise min-w-0 w-full overflow-hidden">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-slate-950 font-bold">
                 <Check className="h-3.5 w-3.5 stroke-[3]" />
               </div>
-              <div>
-                <div className="text-xs font-extrabold uppercase tracking-wide">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-extrabold uppercase tracking-wide break-words">
                   Payment Paid & Settled On-Chain
                 </div>
-                <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">
+                <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium break-words">
                   {row.amountHuman} {row.tokenSymbol} sent successfully from vault
                 </div>
               </div>
             </div>
             {hash && (
-              <span className="chip border-emerald-500/40 bg-emerald-500/20 text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-200">
+              <span className="chip shrink-0 border-emerald-500/40 bg-emerald-500/20 text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-200">
                 tx {short(hash, 4)}
               </span>
             )}
           </div>
         ) : status === ('rejected' as string) ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-rose-500/40 bg-rose-500/15 p-3 text-rose-800 dark:text-rose-300 shadow-sm animate-rise">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white font-bold">
+          <div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-rose-500/40 bg-rose-500/15 p-3 text-rose-800 dark:text-rose-300 shadow-sm animate-rise min-w-0 w-full overflow-hidden">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-500 text-white font-bold">
               <X className="h-3.5 w-3.5 stroke-[3]" />
             </div>
-            <div>
-              <div className="text-xs font-extrabold uppercase tracking-wide">
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-extrabold uppercase tracking-wide break-words">
                 Payment Declined & Cancelled
               </div>
-              <div className="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
+              <div className="text-[10px] text-rose-700 dark:text-rose-400 font-medium break-words">
                 No funds were sent. Your vault balance is untouched.
               </div>
             </div>
           </div>
         ) : status === 'blocked' ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-rose-500/40 bg-rose-500/15 p-3 text-rose-800 dark:text-rose-300 shadow-sm">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-600 text-white font-bold">
+          <div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-rose-500/40 bg-rose-500/15 p-3 text-rose-800 dark:text-rose-300 shadow-sm min-w-0 w-full overflow-hidden">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white font-bold">
               <X className="h-3.5 w-3.5 stroke-[3]" />
             </div>
-            <div>
-              <div className="text-xs font-extrabold uppercase tracking-wide">
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-extrabold uppercase tracking-wide break-words">
                 Payment Blocked by Policy
               </div>
-              <div className="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
+              <div className="text-[10px] text-rose-700 dark:text-rose-400 font-medium break-words">
                 Violates strict spending rules. Assistant cannot override.
               </div>
             </div>
           </div>
         ) : status === 'pending' ? (
-          <div className="pt-1 space-y-2">
-            <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+          <div className="pt-1 space-y-2 min-w-0 w-full">
+            <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300 break-words min-w-0 w-full">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-              <span>Owner Confirmation Required — Authorize with your wallet below</span>
+              <span className="break-words min-w-0 flex-1">Owner Confirmation Required — Authorize with your wallet below</span>
             </div>
 
-            <div className="flex gap-2.5">
+            <div className="flex flex-wrap gap-2.5 min-w-0 w-full">
               <button
-                className="btn-primary flex-1 !py-2.5 text-xs font-bold"
+                className="btn-primary flex-1 min-w-[130px] !py-2.5 text-xs font-bold"
                 onClick={approve}
                 disabled={busy !== null}
               >
@@ -266,7 +266,7 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
                 )}
               </button>
             </div>
-            {error && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">{error}</p>}
+            {error && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium break-words">{error}</p>}
           </div>
         ) : null}
       </div>
