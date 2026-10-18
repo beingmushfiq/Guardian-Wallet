@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { api, short } from '@/lib/api';
 import type { AgentState } from '@/lib/types';
-import { VaultScene3D } from '@/components/three/vault-scene-3d';
+import { VaultShieldHUD } from '@/components/vault-shield-hud';
 import { SpatialCard } from '@/components/spatial-card';
 import { useToast } from '@/components/ui/toast';
 import { Lock, ShieldAlert, ExternalLink, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
@@ -97,13 +97,9 @@ export function VaultCoreCard({
           </span>
         </div>
 
-        {/* 3D Interactive Three.js Gyroscopic Vault Core */}
-        <div className="relative my-3 h-52 w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-b from-slate-100/60 via-emerald-50/20 to-slate-100/30 p-2 dark:border-white/[0.06] dark:from-white/[0.04] dark:via-lime-400/[0.02] dark:to-transparent shadow-inner">
-          <VaultScene3D status={visualStatus} className="h-full w-full" />
-          <div className="pointer-events-none absolute bottom-2.5 right-3 flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/80 px-2 py-0.5 text-[9px] font-mono text-slate-600 dark:border-white/10 dark:bg-black/50 dark:text-ink-300 backdrop-blur-md">
-            <Sparkles className="h-3 w-3 text-emerald-600 dark:text-lime-400" />
-            <span>Interactive 3D Core · Tap to Engage</span>
-          </div>
+        {/* Biometric Holographic Shield HUD (Crisp Vector Alternative to 3D Canvas) */}
+        <div className="relative my-3 h-52 w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-b from-slate-100/70 via-emerald-50/25 to-slate-100/40 p-2 dark:border-white/[0.06] dark:from-white/[0.04] dark:via-lime-400/[0.02] dark:to-transparent shadow-inner">
+          <VaultShieldHUD status={visualStatus} className="h-full w-full" />
         </div>
 
         {/* Balance Display */}

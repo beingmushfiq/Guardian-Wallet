@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }) {
+  const [status, setStatus] = useState<TurnRow['status']>(row.status);
   const [busy, setBusy] = useState<'approve' | 'reject' | null>(null);
   const [error, setError] = useState('');
   const [hash, setHash] = useState(row.txHash);
@@ -33,7 +34,8 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
       }
       const out = await api.approve(row.intentId, txHash);
       setHash(out.txHash);
-      toast.success('Payment Approved', `Successfully sent ${row.amountHuman} ${row.tokenSymbol}`);
+      setStatus('executed');
+      toast.success('Payment Approved & Sent', `Successfully sent ${row.amountHuman} ${row.tokenSymbol}`);
       onDone();
     } catch (e) {
       const err = e instanceof Error ? e.message : String(e);
@@ -49,7 +51,8 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
     setError('');
     try {
       await api.reject(row.intentId);
-      toast.info('Payment Rejected', `Cancelled payment of ${row.amountHuman} ${row.tokenSymbol}`);
+      setStatus('rejected' as TurnRow['status']);
+      toast.info('Payment Declined', `Cancelled payment of ${row.amountHuman} ${row.tokenSymbol}`);
       onDone();
     } catch (e) {
       const err = e instanceof Error ? e.message : String(e);
@@ -61,33 +64,35 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
   }
 
   const borderClass =
-    row.tier === 'T2'
+    status === 'executed'
+      ? 'border-emerald-500/50 shadow-[0_0_24px_rgba(16,185,129,0.2)]'
+      : status === 'blocked' || status === ('rejected' as string)
+      ? 'border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.15)]'
+      : row.tier === 'T2'
       ? 'border-emerald-500/35 dark:border-lime-400/30 shadow-[0_0_20px_rgba(16,185,129,0.12)]'
       : row.tier === 'T3'
-      ? 'border-amber-500/35 dark:border-amber-400/30 shadow-[0_0_20px_rgba(245,158,11,0.12)]'
-      : row.tier === 'BLOCK'
-      ? 'border-rose-500/35 dark:border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.12)]'
+      ? 'border-amber-500/45 dark:border-amber-400/40 shadow-[0_0_20px_rgba(245,158,11,0.18)]'
       : 'border-sky-500/35 dark:border-sky-400/30 shadow-[0_0_20px_rgba(56,189,248,0.12)]';
 
   const riskPct = Math.round((row.riskScore || 0) * 100);
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border bg-white/90 dark:bg-ink-850/80 p-4.5 shadow-sm backdrop-blur-xl transition-all duration-300 ${borderClass}`}
+      className={`relative overflow-hidden rounded-2xl border bg-white/95 dark:bg-slate-900/90 p-4.5 shadow-sm backdrop-blur-xl transition-all duration-300 ${borderClass}`}
     >
       {/* Top Accent Rim */}
-      <div className={`absolute inset-x-0 top-0 h-1 ${style.dot} opacity-80`} />
+      <div className={`absolute inset-x-0 top-0 h-1.5 ${style.dot} opacity-90`} />
 
       <div className="space-y-3.5">
         {/* Tier Header and Mode */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <TierChip tier={row.tier} />
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] font-medium text-slate-500 dark:text-ink-400">
+            <span className="font-mono text-[10px] font-medium text-slate-500 dark:text-slate-400">
               {row.mode === 'live' ? 'Live Vault' : 'Practice Mode'}
             </span>
             {hash && (
-              <span className="chip border-slate-200 bg-slate-100 text-slate-700 dark:border-white/10 dark:bg-white/[0.04] font-mono text-[9px] dark:text-ink-300">
+              <span className="chip border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-mono text-[9px] font-bold">
                 tx {short(hash, 4)}
               </span>
             )}
@@ -95,26 +100,26 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
         </div>
 
         {/* Amount & Destination */}
-        <div className="flex flex-wrap items-end justify-between gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 dark:border-white/[0.05] dark:bg-ink-900/60 p-3">
+        <div className="flex flex-wrap items-end justify-between gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 dark:border-white/[0.06] dark:bg-slate-950/60 p-3">
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <span className="font-display text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {row.amountHuman}
               </span>
               <span className="text-sm font-bold text-emerald-600 dark:text-lime-400">{row.tokenSymbol}</span>
             </div>
-            <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-700 dark:text-ink-300">
-              <span className="font-semibold text-slate-900 dark:text-ink-100">
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+              <span className="font-semibold text-slate-900 dark:text-slate-100">
                 {row.contactName ? `To ${row.contactName}` : 'To new recipient'}
               </span>
-              <span className="font-mono text-[11px] text-slate-500 dark:text-ink-400">({short(row.to, 5)})</span>
+              <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">({short(row.to, 5)})</span>
             </div>
           </div>
 
           {/* Safety Evaluation Score */}
           {row.riskScore > 0 && (
             <div className="flex flex-col items-end">
-              <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-600 dark:text-ink-400">
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-600 dark:text-slate-400">
                 <span>RISK</span>
                 <span className="font-bold text-slate-900 dark:text-white">{riskPct}%</span>
               </div>
@@ -132,17 +137,17 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
 
         {/* Security Rule Check Box */}
         <div className="rounded-xl border border-slate-200/80 bg-slate-100/70 dark:border-white/[0.06] dark:bg-black/35 p-3">
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-ink-400">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400">
             <ShieldCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
             Security Rule Check
           </div>
-          <p className="mt-1.5 text-xs font-semibold leading-relaxed text-slate-900 dark:text-ink-100">
+          <p className="mt-1.5 text-xs font-semibold leading-relaxed text-slate-900 dark:text-slate-100">
             {row.reasons[0]}
           </p>
           {row.reasons.length > 1 && (
             <ul className="mt-2 space-y-1 border-t border-slate-200/60 dark:border-white/[0.04] pt-2">
               {row.reasons.slice(1).map((r, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-ink-300">
+                <li key={i} className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
                   <span className="text-emerald-600 dark:text-lime-400 font-bold">›</span>
                   <span>{r}</span>
                 </li>
@@ -156,7 +161,7 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
           {row.flags.map((f) => (
             <span
               key={f}
-              className="chip border-slate-200 bg-white dark:border-white/[0.08] dark:bg-white/[0.02] font-mono text-[10px] text-slate-700 dark:text-ink-300"
+              className="chip border-slate-200 bg-white dark:border-white/[0.08] dark:bg-white/[0.02] font-mono text-[10px] text-slate-700 dark:text-slate-300"
             >
               {f.toLowerCase().replaceAll('_', ' ')}
             </span>
@@ -165,14 +170,68 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
 
         {/* User Request Reason */}
         {row.reason && (
-          <p className="border-l-2 border-slate-300 dark:border-white/20 pl-2.5 text-xs italic leading-relaxed text-slate-600 dark:text-ink-400">
+          <p className="border-l-2 border-slate-300 dark:border-white/20 pl-2.5 text-xs italic leading-relaxed text-slate-600 dark:text-slate-400">
             “{row.reason}”
           </p>
         )}
 
-        {/* Action Controls for Pending Approvals */}
-        {row.status === 'pending' && (
-          <div className="pt-1">
+        {/* Explicit Status Banners & Actions */}
+        {status === 'executed' ? (
+          <div className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-3 text-emerald-800 dark:text-emerald-300 shadow-sm animate-rise">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-slate-950 font-bold">
+                <Check className="h-3.5 w-3.5 stroke-[3]" />
+              </div>
+              <div>
+                <div className="text-xs font-extrabold uppercase tracking-wide">
+                  Payment Paid & Settled On-Chain
+                </div>
+                <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">
+                  {row.amountHuman} {row.tokenSymbol} sent successfully from vault
+                </div>
+              </div>
+            </div>
+            {hash && (
+              <span className="chip border-emerald-500/40 bg-emerald-500/20 text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-200">
+                tx {short(hash, 4)}
+              </span>
+            )}
+          </div>
+        ) : status === ('rejected' as string) ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-rose-500/40 bg-rose-500/15 p-3 text-rose-800 dark:text-rose-300 shadow-sm animate-rise">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white font-bold">
+              <X className="h-3.5 w-3.5 stroke-[3]" />
+            </div>
+            <div>
+              <div className="text-xs font-extrabold uppercase tracking-wide">
+                Payment Declined & Cancelled
+              </div>
+              <div className="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
+                No funds were sent. Your vault balance is untouched.
+              </div>
+            </div>
+          </div>
+        ) : status === 'blocked' ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-rose-500/40 bg-rose-500/15 p-3 text-rose-800 dark:text-rose-300 shadow-sm">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-600 text-white font-bold">
+              <X className="h-3.5 w-3.5 stroke-[3]" />
+            </div>
+            <div>
+              <div className="text-xs font-extrabold uppercase tracking-wide">
+                Payment Blocked by Policy
+              </div>
+              <div className="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
+                Violates strict spending rules. Assistant cannot override.
+              </div>
+            </div>
+          </div>
+        ) : status === 'pending' ? (
+          <div className="pt-1 space-y-2">
+            <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+              <span>Owner Confirmation Required — Authorize with your wallet below</span>
+            </div>
+
             <div className="flex gap-2.5">
               <button
                 className="btn-primary flex-1 !py-2.5 text-xs font-bold"
@@ -207,9 +266,9 @@ export function ResultCard({ row, onDone }: { row: TurnRow; onDone: () => void }
                 )}
               </button>
             </div>
-            {error && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400 font-medium">{error}</p>}
+            {error && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">{error}</p>}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

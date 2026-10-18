@@ -15,6 +15,7 @@ import { useTheme } from '@/components/theme-provider';
 import { useToast } from '@/components/ui/toast';
 import { BeautifulLoader } from '@/components/ui/loader';
 import { SkeletonTerminal, SkeletonCard } from '@/components/ui/skeleton';
+import { BottomNavBar, type MobileTab } from '@/components/bottom-navbar';
 import gsap from 'gsap';
 import {
   Send,
@@ -81,6 +82,13 @@ export default function Page() {
   const [sending, setSending] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<'activity' | 'rules' | 'payees' | 'guarantees'>('activity');
+  const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
+
+  const handleMobileTabChange = useCallback((tab: MobileTab) => {
+    setMobileTab(tab);
+    if (tab === 'activity') setActiveTab('activity');
+    if (tab === 'rules' && activeTab === 'activity') setActiveTab('rules');
+  }, [activeTab]);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const mainContainerRef = useRef<HTMLDivElement>(null);
@@ -138,6 +146,7 @@ export default function Page() {
   async function send(text?: string) {
     const message = (text ?? input).trim();
     if (!message || sending) return;
+    setMobileTab('chat');
     setInput('');
     const userMsg: Message = { id: crypto.randomUUID(), role: 'user', text: message };
     setMessages((m) => [...m, userMsg]);
@@ -194,7 +203,7 @@ export default function Page() {
 
   return (
     <div ref={mainContainerRef} className="relative min-h-screen font-sans">
-      <main className="mx-auto flex min-h-screen max-w-[1600px] flex-col px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
+      <main className="mx-auto flex min-h-screen max-w-[1600px] flex-col px-3 py-4 sm:px-6 sm:py-6 lg:px-8 pb-24 lg:pb-8">
         {/* Floating Header HUD with vibrant button styling */}
         <header className="gsap-header mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white/90 p-3.5 shadow-sm backdrop-blur-2xl dark:border-white/[0.1] dark:bg-slate-900/70 dark:shadow-[0_12px_36px_-10px_rgba(0,0,0,0.5)]">
           <div className="flex items-center gap-3.5">
@@ -293,9 +302,9 @@ export default function Page() {
           </div>
         ) : (
           <>
-            {/* Top Hero Command Center: 3D Vault Core + Live Spending Guardrails */}
-            <section className="gsap-hero mb-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.1fr)]">
-              {/* Hero Card 1: 3D Vault Core, Balance & Emergency Freeze */}
+            {/* Top Hero Command Center: Vault Core + Live Spending Guardrails */}
+            <section className={`gsap-hero mb-6 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.1fr)] ${mobileTab === 'vault' ? 'grid' : 'hidden lg:grid'}`}>
+              {/* Hero Card 1: Vault Core, Balance & Emergency Freeze */}
               <VaultCoreCard
                 state={state}
                 refresh={refresh}
@@ -397,7 +406,7 @@ export default function Page() {
             {/* Main Workspace Split: Assistant (Left) vs Tabbed Management Center (Right) */}
             <section className="gsap-workspace grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.15fr)]">
               {/* Left Panel: Conversational Assistant with Launchpad (NO EMPTY VOID!) */}
-              <SpatialCard className="flex flex-col min-h-[560px] lg:min-h-[640px]" glowColor="rgba(16, 185, 129, 0.1)">
+              <SpatialCard className={`flex-col min-h-[560px] lg:min-h-[640px] ${mobileTab === 'chat' ? 'flex' : 'hidden lg:flex'}`} glowColor="rgba(16, 185, 129, 0.1)">
                 {/* Terminal Header */}
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/70 px-4 py-3 dark:border-white/[0.08] dark:bg-slate-900/60 backdrop-blur-md">
                   <div className="flex items-center gap-2.5">
@@ -704,7 +713,7 @@ export default function Page() {
               </SpatialCard>
 
               {/* Right Panel: Focused Tabbed Management Center */}
-              <div className="flex flex-col gap-3">
+              <div className={`flex-col gap-3 ${mobileTab === 'activity' || mobileTab === 'rules' ? 'flex' : 'hidden lg:flex'}`}>
                 {/* Segmented Control Navigation Tabs */}
                 <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-slate-200/90 bg-white/90 p-1.5 shadow-sm dark:border-white/[0.1] dark:bg-slate-900/70 backdrop-blur-xl scrollbar-none">
                   <button
@@ -786,6 +795,13 @@ export default function Page() {
           )}
         </footer>
       </main>
+
+      {/* Floating Mobile Bottom Navigation Bar (Dynamic App View Switcher) */}
+      <BottomNavBar
+        activeTab={mobileTab}
+        onChange={handleMobileTabChange}
+        pendingCount={pending.length}
+      />
     </div>
   );
 }
