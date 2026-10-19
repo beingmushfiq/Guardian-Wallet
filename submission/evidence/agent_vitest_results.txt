@@ -1,0 +1,18 @@
+﻿
+> guardian-wallet@1.0.0 test
+> npm --prefix agent test
+
+
+> @guardian/agent@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/Guardian Wallet (Fintechathon)/agent[39m
+
+ [32mΓ£ô[39m test/guardian.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 146[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m   Start at [22m 02:47:19
+[2m   Duration [22m 1.51s[2m (transform 165ms, setup 0ms, import 1.11s, tests 146ms, environment 0ms)[22m
+

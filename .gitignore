@@ -11,6 +11,7 @@ build/
 cache/
 *.tsbuildinfo
 *.zip
+!execution_evidence.zip
 contracts/out/
 contracts/cache/
 contracts/broadcast/
