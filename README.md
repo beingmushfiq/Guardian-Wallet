@@ -4,7 +4,22 @@
 
 Guardian Wallet is an autonomous AI wallet agent with *enforced* policy boundaries. You speak in natural language ("Pay tuition $40"), the assistant evaluates intent, a deterministic policy engine validates security rules, and a smart contract vault enforces daily spending allowances and trusted payees before funds can move. A compromised AI model, a malicious prompt injection, or a lookalike address cannot override your spending limits.
 
-Built for the Fintechathon on Base Sepolia (chain ID 84532).
+- **GitHub Repository**: [https://github.com/beingmushfiq/Guardian-Wallet](https://github.com/beingmushfiq/Guardian-Wallet)
+- **Target Network**: Base Sepolia (EVM Chain ID `84532`)
+- **Theme**: "AI as a Financial Participant" · Topic F (AI Wallet Agent) · 2026 Shenzhen International FinTechathon
+
+---
+
+## 📑 Official Submission Deliverables Checklist
+
+| Deliverable | Description | Location in Repo |
+|---|---|---|
+| **01 Technical Documentation** | System architecture, core algorithm description, security design | [`docs/technical-documentation.md`](docs/technical-documentation.md) |
+| **02 Presentation Deck** | Final pitch deck (≤10 minutes speaking time, 12 slides + speaker notes) | [`docs/presentation-deck.md`](docs/presentation-deck.md) · [`docs/deck-outline.md`](docs/deck-outline.md) |
+| **03 Demo Video Guide** | Timestamped video script & recording walkthrough (≤5 minutes) | [`docs/demo-script.md`](docs/demo-script.md) |
+| **04 Source Code** | Complete codebase with README, GitHub link, deployment guide, test cases | [GitHub Repository](https://github.com/beingmushfiq/Guardian-Wallet) · [`README.md`](README.md) |
+| **05 Security Self-Assessment** | Permission-tier implementation and comprehensive known-risk list | [`docs/security-self-assessment.md`](docs/security-self-assessment.md) |
+| **06 Execution Evidence** | Real on-chain EVM transaction hashes, receipts, blocks, and sandbox audit logs | [`docs/execution-evidence.md`](docs/execution-evidence.md) |
 
 ---
 
@@ -162,16 +177,17 @@ cast send $VAULT_ADDRESS "setRecipient(address,bool)" $RAHIM_ADDRESS true --rpc-
 ## Testing & Quality Assurance
 
 ```bash
-# Contracts — 25 tests (22 unit + 3 fuzzing)
+# Smart Contracts — 31 Foundry tests (28 unit + 3 fuzzing @ 256 runs each)
 npm run test:contracts
+# or directly: cd contracts && forge test -vv
 
-# Agent Service — 35 tests
+# Agent Service — 41 Vitest unit & integration tests
 npm test
 
-# Adversarial Attack Suite — 14 real-world test cases
+# Adversarial Attack Suite — 14 real-world test cases (All Passed)
 npm run attacks
 
-# Web Application Production Build
+# Web Application Production Build & Typecheck
 cd web && npm run build
 ```
 

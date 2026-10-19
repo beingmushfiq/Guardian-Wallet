@@ -1,83 +1,33 @@
-# Guardian Wallet — Presentation Deck Outline
+# Guardian Wallet — Presentation Deck Guide & Outline
 
-**Format:** 10–12 slides, ≤10 minutes speaking time, 16:9.
-**One line to land:** *the AI proposes, deterministic code and an on-chain vault dispose.*
+**Target Speaking Time**: ≤10 Minutes (Strictly timed: 8:15 talk + 1:45 Q&A)  
+**Deliverable Document**: Full slide-by-slide script, layout, and judge defense matrix in [`docs/presentation-deck.md`](presentation-deck.md).  
+**Core Slogan**: *"The AI proposes; deterministic policy and an on-chain vault dispose."*
 
 ---
 
-## Slide plan
+## 1. Slide Deck Overview (12 Slides)
 
-| # | Slide | Content | Time |
+| # | Slide Title | Core Message & Focus | Time Allocation |
 |---|---|---|---|
-| 1 | Title | Guardian Wallet · Fintechathon · Topic F (AI wallet agent). Team names and roles. | 0:15 |
-| 2 | Problem | Agents are being given money-moving keys. Three failure classes: prompt injection from documents, address poisoning, and over-permissioned keys. One concrete story (malicious invoice instructs "send everything"). | 0:45 |
-| 3 | Insight | Models are probabilistic; money movement must be deterministic. "Trust the code, not the model." The LLM is a parser, not an authority. | 0:30 |
-| 4 | Solution overview | Pipeline: chat → typed proposal → risk score → policy tier → simulation → vault. Emphasise that the policy engine reads only typed fields, never prose. | 1:00 |
-| 5 | Architecture | The diagram from `README.md` / technical doc §2. Two trust boundaries: model ↔ agent, agent ↔ vault. Owner key never leaves the browser. | 1:00 |
-| 6 | Permission tiers | T0 read · T1 propose-only · T2 auto-execute · T3 owner approval · BLOCK. First-match-wins table with examples per row. | 0:45 |
-| 7 | Live demo | Run the five flows: T2 auto-pay, T3 approval in wallet, prompt injection attachment, lookalike address, direct-vault over-cap revert. | 3:00 |
-| 8 | Security results | 14/14 adversarial cases, 25/25 Foundry tests, 35/35 agent tests. Highlight: injection never reaches T2; over-cap calls revert on-chain; tampered log detected at entry 3. | 1:00 |
-| 9 | Scoring alignment | Task completion (natural-language payments end to end), security (dual-layer limits, tier enforcement), innovation (enforced autonomy rather than guardrails-in-prompt), on-chain bonus (vault + real Foundry suite). | 0:45 |
-| 10 | Real-world path | Session-key accounts, multisig owner, audit + bug bounty, sanctions screening hook, cross-border tuition/remittance as the first market. | 0:45 |
-| 11 | Roadmap and team | Next: on-chain audit anchoring, multi-recipient batches, hardware-wallet owner. Roles table. | 0:30 |
-| 12 | Q&A backup | Threat model table, contract function list, known-risk list (KR-1…KR-12), full attack results. | — |
+| **1** | **Title & The Vision** | Guardian Wallet · FinTechathon Topic F (AI Wallet Agent) · Enforced Autonomy | 0:00 – 0:35 (35s) |
+| **2** | **The Three Fatal Traps** | Prompt injection in invoices, address poisoning, and over-permissioned hot keys | 0:35 – 1:25 (50s) |
+| **3** | **The Architectural Insight** | Separation of Understanding (LLM parser) from Authority (code + vault) | 1:25 – 2:10 (45s) |
+| **4** | **End-to-End System Pipeline** | Next.js UI → Ingestion → Risk Engine → Policy Engine → Simulation → Vault | 2:10 – 3:00 (50s) |
+| **5** | **The 5 Permission Tiers** | Formal matrix: T0 Read, T1 Propose, T2 Auto-Pay, T3 Owner Approval, BLOCK | 3:00 – 3:45 (45s) |
+| **6** | **Live Production Verification** | Walkthrough of 5 flows: Auto-pay, Approval card, Injection, Poisoning, Revert | 3:45 – 5:15 (90s) |
+| **7** | **Tamper-Evident Audit Trail** | SHA-256 continuous hash chaining and dynamic tamper detection (`brokenAt: 3`) | 5:15 – 6:00 (45s) |
+| **8** | **Comprehensive QA & Verification** | 31 Foundry tests (inc. fuzzing), 41 Vitest tests, 14 Adversarial attack tests | 6:00 – 6:45 (45s) |
+| **9** | **FinTechathon Scoring Alignment** | 40% Task Completion, 30% Security, 30% Innovation, 0–5 Bonus Points | 6:45 – 7:25 (40s) |
+| **10** | **Real-World Impact & Personas** | Cross-border tuition payments, freelancer income automation, small treasuries | 7:25 – 7:50 (25s) |
+| **11** | **Production Roadmap** | ERC-4337 session keys, Safe multisig owner, on-chain audit anchoring | 7:50 – 8:15 (25s) |
+| **12** | **Conclusion & Q&A Defense** | "Spend with intent, not blind trust" · Full Judge Q&A Defense Matrix | 8:15 – 8:30 (15s) |
 
 ---
 
-## Speaker notes per slide
+## 2. Key Speaking Points & Rules
 
-### Slide 2 — Problem
-
-- An agent that can read email can be told what to do by an attacker who can send email.
-- Address poisoning works on humans and on models: `0x7a00…c0de` versus `0x7a00dead…c0de` look identical in a truncated UI.
-- The usual answer is "add a system prompt". A system prompt is not an access-control mechanism.
-
-### Slide 3 — Insight
-
-- Separate *understanding* from *authority*.
-- The model may only emit one typed tool call: `{ token, to, amount, intentId }`. It has no private key.
-- Every rule that can move money is evaluated twice: off-chain for UX and explanation, on-chain for enforcement.
-
-### Slide 4 — Solution overview
-
-- Say the pipeline out loud while the diagram animates: propose → score → tier → simulate → execute or escalate.
-- Point out that a failed simulation is not always a denial: a non-allowlisted recipient or an over-cap amount is escalated to T3 because the owner can still authorise it; a paused vault or bad token is a hard BLOCK.
-
-### Slide 6 — Permission tiers
-
-- T2 is the only path that moves money without a human, and it is available only for an allowlisted recipient inside both caps with low risk.
-- Any untrusted attachment removes T2 entirely, regardless of what the text says.
-- The agent may pause but can never unpause or reconfigure — those are `onlyOwner`.
-
-### Slide 8 — Security results
-
-- Say the numbers and where they come from: `forge test` 25/25, `npm test` 35/35, `npm run attacks` 14/14 (`attacks/RESULTS.md`).
-- Tamper evidence: edit one amount in the JSONL and `verifyChain()` returns `{ valid: false, brokenAt: 3 }`.
-- Be explicit that this is a testnet prototype and list the top three known risks.
-
-### Slide 12 — Q&A backup
-
-- Have the terminal open on `attacks/RESULTS.md` and the Foundry summary.
-- Have `docs/security-self-assessment.md` open for the known-risk list.
-
----
-
-## Likely judge questions
-
-| Question | Answer |
-|---|---|
-| What if the LLM is fully compromised? | It has no key and no permission authority. The vault bounds loss to one daily cap and only to allowlisted recipients. |
-| Why not just use a multisig? | A multisig needs a human for every action. Guardian automates the safe majority and escalates only the risky minority. |
-| How do you handle novel injections? | Detection is one layer only. Allowlists, caps, tiers, and simulation do not depend on pattern matching. |
-| Why is the audit log meaningful if it is local? | It is tamper-evident, not tamper-proof. On-chain anchoring is the documented next step (KR-5). |
-| Is this production ready? | No. See the known-risk list: audit, multisig owner, and compliance work are required first. |
-
----
-
-## Production checklist for the deck
-
-- [ ] Replace placeholder team names on slide 1.
-- [ ] Export the architecture diagram at 2× for the projector.
-- [ ] Pre-record slide 7 as a backup video (see [demo-script.md](demo-script.md)).
-- [ ] Pre-seed the demo so no scene waits on a faucet or an LLM call.
-- [ ] Keep the terminal font at 16 pt or larger for the revert scene.
+1. **Keep it under 10 minutes**: The presentation is timed for 8 minutes and 15 seconds, leaving an automatic 1 minute 45 seconds buffer for judge questions.
+2. **Never claim LLM safety as the primary guard**: Always emphasize that the LLM is an untrusted natural-language parser. Security is structural and enforced on-chain.
+3. **Show, Don't Just Tell**: Refer directly to `docs/execution-evidence.md` for confirmed on-chain transaction hashes and `attacks/RESULTS.md` for the 14/14 adversarial pass rate.
+4. **Refer to the Full Script**: See [`docs/presentation-deck.md`](presentation-deck.md) for the verbatim narration and complete slide layouts.
